@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags: []
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - 
+  - 
+  - ClearingCircle
+  - 
+  - 
+  - 
+  - ClearingDenizen
+  - 
+  - 
+  - 
+  - 
+  - 
+  - ClearingName
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: ClearingName
+    uniqueID: 1726948327
+    locked: 0
+  - name: Denizen
+    uniqueID: 1202662515
+    locked: 0
+  - name: Clearing
+    uniqueID: 4102495987
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
