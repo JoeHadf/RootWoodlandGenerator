@@ -14,9 +14,6 @@ public class MapGenerator
     private GameObject clearingObject;
     private GameObject pathObject;
     
-    private Transform clearingsParent;
-    private Transform pathsParent;
-    
     private float xRange = 9.5f;
     private float yRange = 4.0f;
     
@@ -30,18 +27,9 @@ public class MapGenerator
     private float maxForce = 0.5f;
     private float curveSteepness = 0.01f;
 
-    private int nextID;
-
-    public MapGenerator(WorldState worldState, GameObject clearingObject, GameObject pathObject)
+    public MapGenerator(WorldState worldState)
     {
         this.worldState = worldState;
-        this.clearingObject = clearingObject;
-        this.pathObject = pathObject;
-        
-        clearingsParent = new GameObject("ClearingsParent").transform;
-        pathsParent = new GameObject("PathsParent").transform;
-
-        nextID = 0;
     }
 
     public void GenerateClearings()
@@ -55,7 +43,7 @@ public class MapGenerator
             float xPosition = Random.Range(-xRange, xRange);
             float yPosition = Random.Range(-yRange, yRange);
             
-            GenerateClearing(new Vector3(xPosition, yPosition, 0));
+            worldState.GenerateClearing(new Vector3(xPosition, yPosition, 0));
         }
         
         bool overlapping = ClearingsOverlap(clearingDistance);
@@ -85,7 +73,7 @@ public class MapGenerator
             int randomPathIndex = Random.Range(0, possiblePaths.Count);
             PathID pathToAdd = possiblePaths.ElementAt(randomPathIndex);
             possiblePaths.Remove(pathToAdd);
-            Path newPath = GeneratePath(clearingsByID[pathToAdd.startID], clearingsByID[pathToAdd.endID]);
+            Path newPath = worldState.GeneratePath(clearingsByID[pathToAdd.startID], clearingsByID[pathToAdd.endID]);
 
             isConnected = ClearingsAreConnected();
 
@@ -313,37 +301,6 @@ public class MapGenerator
         
         float lerp = Mathf.InverseLerp(a, b, value);
         return Math.Min(1 / (lerp * lerp) * curveSteepness, 1.0f);
-    }
-
-    private Clearing GenerateClearing(Vector3 clearingPosition)
-    {
-        GameObject currentClearingObject = Object.Instantiate(clearingObject, clearingPosition, Quaternion.identity, clearingsParent);
-        Clearing currentClearing = currentClearingObject.GetComponent<Clearing>();
-        currentClearing.Init(GetID());
-        worldState.RegisterNewClearing(currentClearing);
-        return currentClearing;
-    }
-
-    private Path GeneratePath(Clearing startClearing, Clearing endClearing)
-    {
-        PathID generatedPathID = new PathID(startClearing.clearingID, endClearing.clearingID);
-
-        if (!worldState.pathsByID.ContainsKey(generatedPathID))
-        {
-            GameObject currentPathObject = Object.Instantiate(pathObject, Vector3.zero, Quaternion.identity, pathsParent);
-            Path currentPath = currentPathObject.GetComponent<Path>();
-            currentPath.Init(startClearing, endClearing);
-            worldState.RegisterNewPath(currentPath);
-        }
-
-        return worldState.pathsByID[generatedPathID];
-    }
-
-    private int GetID()
-    {
-        int id = nextID;
-        nextID++;
-        return id;
     }
 
     public int GetNumberOfPaths()

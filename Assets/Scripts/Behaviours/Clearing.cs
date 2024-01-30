@@ -22,18 +22,9 @@ public class Clearing : MonoBehaviour
     private float clearingRadius = 1.0f;
     private int circleSteps = 15;
     private float lineWidth = 0.2f;
-
-    private float hoveringScale = 1.2f;
-    private float defaultScale = 1.0f;
     
     private float xRange = 9.5f;
     private float yRange = 4.0f;
-
-    private MouseState currentMouseState = MouseState.Off;
-    private MouseState storedMouseState = MouseState.Off;
-
-    private Vector3 mouseStart = Vector3.zero;
-    private Vector3 clearingStart = Vector3.zero;
 
     public void Init(int id)
     {
@@ -46,90 +37,6 @@ public class Clearing : MonoBehaviour
     {
         DrawCircle();
     }
-
-    void Update()
-    {
-        if (WorldState.editMode != EditMode.Modify || WorldState.editMode != EditMode.Destroy)
-        {
-            currentMouseState = MouseState.Off;
-        }
-        
-        if (currentMouseState != storedMouseState)
-        {
-            storedMouseState = currentMouseState;
-
-            switch (storedMouseState)
-            {
-                case MouseState.Off:
-                case MouseState.Clicked:
-                    transform.localScale = defaultScale * Vector3.one;
-                    break;
-                case MouseState.Hovering:
-                    transform.localScale = hoveringScale * Vector3.one;
-                    break;
-            }
-        }
-    }
-
-    void OnMouseEnter()
-    {
-        switch (WorldState.editMode)
-        {
-            case EditMode.Modify:
-            case EditMode.Destroy:
-                currentMouseState = MouseState.Hovering;
-                break;
-        }
-        
-    }
-
-    void OnMouseDown()
-    {
-        switch (WorldState.editMode)
-        {
-            case EditMode.Modify:
-                mouseStart = GetMousePosition();
-                clearingStart = transform.localPosition;
-
-                currentMouseState = MouseState.Clicked;
-                break;
-            case EditMode.Destroy:
-                Destroy(gameObject);
-                foreach (Path path in paths)
-                {
-                    Destroy(path.gameObject);
-                }
-                break;
-        }
-    }
-
-    void OnMouseUp()
-    {
-        switch (WorldState.editMode)
-        {
-            case EditMode.Modify:
-            case EditMode.Destroy:
-                currentMouseState = MouseState.Hovering;
-                break;
-        }
-        
-    }
-
-    void OnMouseExit()
-    {
-        currentMouseState = MouseState.Off;
-    }
-
-    void OnMouseDrag()
-    {
-        switch (WorldState.editMode)
-        {
-            case EditMode.Modify:
-                Vector3 currentMousePosition = GetMousePosition();
-                transform.localPosition = clearingStart + (currentMousePosition - mouseStart);
-                break;
-        }
-    }
     
     public Vector3 GetPathStart(Vector3 normDirection)
     {
@@ -139,6 +46,16 @@ public class Clearing : MonoBehaviour
     public void RegisterPath(Path adjacentPath)
     {
         paths.Add(adjacentPath);
+    }
+
+    public void DeregisterPath(Path nonAdjacentPath)
+    {
+        paths.Remove(nonAdjacentPath);
+    }
+
+    public void DeregisterAllPaths()
+    {
+        paths.Clear();
     }
 
     public Vector3 GetPosition()
@@ -194,20 +111,6 @@ public class Clearing : MonoBehaviour
 
         return foxSprite;
     }
-
-    private Vector3 GetMousePosition()
-    {
-        Vector3 mouseScreenPos = Input.mousePosition;
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-        return new Vector3(mouseWorldPos.x, mouseWorldPos.y, 0);
-    }
-}
-
-enum MouseState
-{
-    Hovering,
-    Clicked,
-    Off
 }
 
 public enum DenizenType

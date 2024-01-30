@@ -20,7 +20,7 @@ public class ButtonBehaviour : MonoBehaviour
 
     public void NextEditMode()
     {
-        switch (WorldState.editMode)
+        switch (worldState.editMode)
         {
             case EditMode.Modify:
                 ChangeEditMode(EditMode.Create);
