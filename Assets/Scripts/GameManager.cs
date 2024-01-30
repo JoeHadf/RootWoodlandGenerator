@@ -46,7 +46,6 @@ public class GameManager : MonoBehaviour
             mapGenerator.GeneratePaths();
             clearingInfoGenerator.GenerateDenizens();
             clearingInfoGenerator.GenerateClearingNames();
-
         }
     }
 }

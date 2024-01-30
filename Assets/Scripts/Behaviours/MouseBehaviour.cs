@@ -30,19 +30,24 @@ public class MouseBehaviour : MonoBehaviour
         
         if (Input.GetMouseButtonDown(0))
         {
-            RaycastHit2D hit = Physics2D.Raycast(mouseWorldPosition, Vector2.zero, 0, LayerMask.GetMask("ClearingCircle", "ClearingPath"));
+            bool isOverButton = UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
 
-            switch (worldState.editMode)
+            if (!isOverButton)
             {
-                case EditMode.Create:
-                    CreateMode(hit);
-                    break;
-                case EditMode.Destroy:
-                    DestroyMode(hit);
-                    break;
-                case EditMode.Modify:
-                    ModifyMode(hit);
-                    break;
+                RaycastHit2D hit = Physics2D.Raycast(mouseWorldPosition, Vector2.zero, 0, LayerMask.GetMask("ClearingCircle", "ClearingPath"));
+
+                switch (worldState.editMode)
+                {
+                    case EditMode.Create:
+                        CreateMode(hit);
+                        break;
+                    case EditMode.Destroy:
+                        DestroyMode(hit);
+                        break;
+                    case EditMode.Modify:
+                        ModifyMode(hit);
+                        break;
+                }
             }
         }
         else if (Input.GetMouseButtonUp(0))
