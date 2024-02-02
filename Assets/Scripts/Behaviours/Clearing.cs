@@ -2,13 +2,18 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Clearing : MonoBehaviour
 {
     [SerializeField] private TextMeshPro textMesh;
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private SpriteRenderer denizenRenderer;
+    [SerializeField] private SpriteRenderer presenceRenderer;
+    [SerializeField] private FactionSpriteSwitcher controlSpriteSwitcher;
+    [SerializeField] private FactionSpriteSwitcher buildingSpriteSwitcher;
 
+    [SerializeField] private Sprite sympathySprite;
     [SerializeField] private Sprite foxSprite;
     [SerializeField] private Sprite mouseSprite;
     [SerializeField] private Sprite rabbitSprite;
@@ -16,6 +21,10 @@ public class Clearing : MonoBehaviour
     public int clearingID {get; private set;}
     public string clearingName { get; private set; }
     public DenizenType majorDenizen { get; private set; }
+    
+    public FactionType clearingControl { get; private set; }
+    public bool hasBuilding { get; private set; }
+    public HashSet<FactionType> clearingPresence { get; private set; }
 
     private List<Path> paths = new List<Path>();
     
@@ -31,6 +40,8 @@ public class Clearing : MonoBehaviour
         this.clearingID = id;
         SetClearingName(id.ToString());
         SetMajorDenizen(DenizenType.Fox);
+        SetClearingControl(FactionType.Denizens);
+        clearingPresence = new HashSet<FactionType>();
     }
 
     void Start()
@@ -95,6 +106,43 @@ public class Clearing : MonoBehaviour
     {
         this.majorDenizen = denizen;
         denizenRenderer.sprite = GetDenizenSprite(denizen);
+    }
+
+    public void SetClearingControl(FactionType faction)
+    {
+        this.clearingControl = faction;
+        controlSpriteSwitcher.SetFaction(faction);
+    }
+
+    public void SetHasBuilding(bool building)
+    {
+        hasBuilding = building;
+        buildingSpriteSwitcher.SetFaction(hasBuilding ? clearingControl : FactionType.Denizens);
+    }
+
+    public void SetClearingPresence(FactionType faction)
+    {
+        clearingPresence.Add(faction);
+        if (faction == FactionType.WoodlandAlliance)
+        {
+            presenceRenderer.enabled = true;
+            presenceRenderer.sprite = sympathySprite;
+        }
+    }
+
+    public void RemoveClearingPresence(FactionType faction)
+    {
+        clearingPresence.Remove(faction);
+        if (faction == FactionType.WoodlandAlliance)
+        {
+            presenceRenderer.enabled = false;
+        }
+    }
+
+    public void RemoveAllPresence()
+    {
+        clearingPresence.Clear();
+        presenceRenderer.enabled = false;
     }
 
     private Sprite GetDenizenSprite(DenizenType denizen)

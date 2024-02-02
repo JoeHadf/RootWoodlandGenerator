@@ -204,6 +204,16 @@ public class WorldState
 
         return false;
     }
+
+    public HashSet<int> GetAdjacentClearings(int clearingID)
+    {
+        if (adjacentClearingsByID.TryGetValue(clearingID, out HashSet<int> adjacentClearings))
+        {
+            return adjacentClearings;
+        }
+
+        return new HashSet<int>();
+    }
 }
 
 public enum EditMode
