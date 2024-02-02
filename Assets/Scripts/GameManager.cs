@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
 
     private MapGenerator mapGenerator;
     private ClearingInfoGenerator clearingInfoGenerator;
+    private FactionGenerator factionGenerator;
 
     private WorldState worldState;
 
@@ -25,6 +26,7 @@ public class GameManager : MonoBehaviour
         
         mapGenerator = new MapGenerator(worldState);
         clearingInfoGenerator = new ClearingInfoGenerator(worldState);
+        factionGenerator = new FactionGenerator(worldState);
         buttonBehaviour.Init(worldState);
         mouseBehaviour.Init(worldState);
     }
@@ -35,6 +37,12 @@ public class GameManager : MonoBehaviour
         mapGenerator.GeneratePaths();
         clearingInfoGenerator.GenerateDenizens();
         clearingInfoGenerator.GenerateClearingNames();
+        
+        factionGenerator.SetupMarquisate();
+        factionGenerator.SetupEyrieDynasties();
+        factionGenerator.SetupWoodlandAlliance();
+        factionGenerator.SetupDenizens();
+        factionGenerator.Reset();
     }
 
     void Update()
@@ -46,6 +54,12 @@ public class GameManager : MonoBehaviour
             mapGenerator.GeneratePaths();
             clearingInfoGenerator.GenerateDenizens();
             clearingInfoGenerator.GenerateClearingNames();
+            
+            factionGenerator.SetupMarquisate();
+            factionGenerator.SetupEyrieDynasties();
+            factionGenerator.SetupWoodlandAlliance();
+            factionGenerator.SetupDenizens();
+            factionGenerator.Reset();
         }
     }
 }
