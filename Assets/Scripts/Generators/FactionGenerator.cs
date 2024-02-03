@@ -10,7 +10,7 @@ public class FactionGenerator
 {
     private WorldState worldState;
 
-    private List<CornerType> usedCorners = new List<CornerType>();
+    private List<Corner> usedCorners = new List<Corner>();
     private HashSet<int> usedCornerClearingIDs = new HashSet<int>();
     private HashSet<int> contestedClearingIDs = new HashSet<int>();
 
@@ -28,7 +28,7 @@ public class FactionGenerator
 
     public void SetupMarquisate()
     {
-        CornerType strongholdCorner = ChooseRandomCorner();
+        Corner strongholdCorner = ChooseRandomCorner();
         Clearing strongholdClearing = GetCornerClearing(strongholdCorner);
         
         strongholdClearing.SetClearingControl(FactionType.Marquisate);
@@ -61,7 +61,7 @@ public class FactionGenerator
 
     public void SetupEyrieDynasties()
     {
-        CornerType startingRoostCorner = ChooseRandomCorner();
+        Corner startingRoostCorner = ChooseRandomCorner();
         Clearing startingRoostClearing = GetCornerClearing(startingRoostCorner);
         
         startingRoostClearing.SetClearingControl(FactionType.EyrieDynasties);
@@ -195,30 +195,6 @@ public class FactionGenerator
         }
     }
 
-    private bool HasWoodlandAllianceSympathy(Clearing clearing)
-    {
-        int sympathyThreshold;
-
-        if (clearing.clearingControl == FactionType.Denizens)
-        {
-            sympathyThreshold = 9;
-        }
-        else if (contestedClearingIDs.Contains(clearing.clearingID))
-        {
-            sympathyThreshold = 8;
-        }
-        else
-        {
-            sympathyThreshold = 11;
-        }
-
-        int diceRoll = Roll2D6();
-
-        bool hasSympathy = diceRoll >= sympathyThreshold;
-
-        return hasSympathy;
-    }
-
     private bool MarquisateIsInControl(int distanceFromStronghold)
     {
         int controlThreshold;
@@ -306,6 +282,30 @@ public class FactionGenerator
 
         return (inControl, adjacentClearingsSympathetic);
     }
+    
+    private bool HasWoodlandAllianceSympathy(Clearing clearing)
+    {
+        int sympathyThreshold;
+
+        if (clearing.clearingControl == FactionType.Denizens)
+        {
+            sympathyThreshold = 9;
+        }
+        else if (contestedClearingIDs.Contains(clearing.clearingID))
+        {
+            sympathyThreshold = 8;
+        }
+        else
+        {
+            sympathyThreshold = 11;
+        }
+
+        int diceRoll = Roll2D6();
+
+        bool hasSympathy = diceRoll >= sympathyThreshold;
+
+        return hasSympathy;
+    }
 
     private bool DenizensAreInControl()
     {
@@ -326,8 +326,8 @@ public class FactionGenerator
     {
         Dictionary<int, int> clearingDistances = new Dictionary<int, int>();
         HashSet<int> foundClearings = new HashSet<int>();
-        Queue<int> clearingsToCheck = new Queue<int>();
-       clearingDistances.Add(startClearingID, 0);
+        Queue<int> clearingsToCheck = new Queue<int>(); 
+        clearingDistances.Add(startClearingID, 0);
         foundClearings.Add(startClearingID);
         clearingsToCheck.Enqueue(startClearingID);
 
@@ -366,17 +366,8 @@ public class FactionGenerator
         return clearingsByDistance;
     }
 
-    private Clearing GetCornerClearing(CornerType corner)
+    private Clearing GetCornerClearing(Corner corner)
     {
-        if (corner == CornerType.NoCorner)
-        {
-            return null;
-        }
-        
-        int cornerID = (int)corner;
-        bool isNorth = cornerID <= 2;
-        bool isEast = cornerID % 2 == 0;
-
         List<Clearing> clearings = worldState.clearings;
 
         float currentClosestDistance = float.MinValue;
@@ -393,8 +384,8 @@ public class FactionGenerator
             
             Vector3 currentClearingPosition = currentClearing.GetPosition();
 
-            float vertical = (isNorth) ? currentClearingPosition.y : -currentClearingPosition.y;
-            float horizontal = (isEast) ? currentClearingPosition.x : -currentClearingPosition.x;
+            float vertical = (corner.isNorth) ? currentClearingPosition.y : -currentClearingPosition.y;
+            float horizontal = (corner.isEast) ? currentClearingPosition.x : -currentClearingPosition.x;
 
             float clearingClosestDistance = vertical + horizontal;
 
@@ -409,109 +400,61 @@ public class FactionGenerator
         return currentClosestClearing;
     }
 
-    private CornerType ChooseRandomCorner()
+    private Corner ChooseRandomCorner()
     {
-        if (usedCorners.Count == 0)
-        {
-            int cornerID = Random.Range(1, 5);
-            CornerType corner = (CornerType)cornerID;
-            usedCorners.Add(corner);
-            return corner;
-        }
-        
+        Corner corner;
         if (usedCorners.Count == 1)
         {
-            CornerType usedCorner = usedCorners[0];
-            CornerType oppositeCorner = GetOppositeCorner(usedCorner); 
-            usedCorners.Add(oppositeCorner);
-            return oppositeCorner;
+            corner = usedCorners[0].GetOppositeCorner();
         }
-
-        if (usedCorners.Count == 2)
+        else if (usedCorners.Count == 2)
         {
-            int unusedCornerIndex = Random.Range(0, 2);
-            
-            CornerType usedCorner1 = usedCorners[0];
-            CornerType usedCorner2 = usedCorners[1];
-            
-            int foundUnusedCornerCount = 0;
-
-            int cornerID = -1;
-
-            for (int i = 1; i <= 4; i++)
-            {
-                CornerType currentCorner = (CornerType)i;
-                if (currentCorner == usedCorner1 || currentCorner == usedCorner2)
-                {
-                    continue;
-                }
-                
-                if (foundUnusedCornerCount == unusedCornerIndex)
-                {
-                    cornerID = i;
-                    break;
-                }
-                    
-                foundUnusedCornerCount++;
-            }
-
-            CornerType corner = (CornerType)cornerID;
-            usedCorners.Add(corner);
-            return corner;
+            Corner firstCorner = usedCorners[0];
+            bool flipNorth = Convert.ToBoolean(Random.Range(0,2));
+            corner = (flipNorth) ? firstCorner.FlipNorth() : firstCorner.FlipEast();
         }
-
-        if (usedCorners.Count == 3)
+        else if (usedCorners.Count == 3)
         {
-            CornerType usedCorner1 = usedCorners[0];
-            CornerType usedCorner2 = usedCorners[1];
-            CornerType usedCorner3 = usedCorners[2];
-            
-            for (int i = 1; i <= 4; i++)
-            {
-                CornerType currentCorner = (CornerType)i;
-
-                bool isFirstCorner = currentCorner == usedCorner1;
-                bool isSecondCorner = currentCorner == usedCorner2;
-                bool isThirdCorner = currentCorner == usedCorner3;
-
-                bool isRemainingCorner = !isFirstCorner && !isSecondCorner && !isThirdCorner;
-
-                if (isRemainingCorner)
-                {
-                    usedCorners.Add(currentCorner);
-                    return currentCorner;
-                }
-            }
+            Corner thirdCorner = usedCorners[2];
+            corner = thirdCorner.GetOppositeCorner();
         }
-
-        return CornerType.NoCorner;
-    }
-
-    private CornerType GetOppositeCorner(CornerType corner)
-    {
-        switch (corner)
+        else
         {
-            case CornerType.NorthWest:
-                return CornerType.SouthEast;
-            case CornerType.NorthEast:
-                return CornerType.SouthWest;
-            case CornerType.SouthWest:
-                return CornerType.NorthEast;
-            case CornerType.SouthEast:
-                return CornerType.NorthWest;
+            bool isNorth = Convert.ToBoolean(Random.Range(0, 2));
+            bool isEast = Convert.ToBoolean(Random.Range(0, 2));
+            corner = new Corner(isNorth, isEast);
         }
-
-        return CornerType.NoCorner;
+        
+        usedCorners.Add(corner);
+        return corner;
     }
 }
 
-public enum CornerType
+public struct Corner
 {
-    NoCorner = 0,
-    NorthWest = 1,
-    NorthEast = 2,
-    SouthWest = 3,
-    SouthEast = 4,
+    public bool isNorth;
+    public bool isEast;
+
+    public Corner(bool isNorth, bool isEast)
+    {
+        this.isNorth = isNorth;
+        this.isEast = isEast;
+    }
+
+    public Corner GetOppositeCorner()
+    {
+        return new Corner(!isNorth, !isEast);
+    }
+
+    public Corner FlipNorth()
+    {
+        return new Corner(!isNorth, isEast);
+    }
+
+    public Corner FlipEast()
+    {
+        return new Corner(isNorth, !isEast);
+    }
 }
 
 public enum FactionType
