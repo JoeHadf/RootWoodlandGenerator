@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
         clearingInfoGenerator = new ClearingInfoGenerator(worldState);
         factionGenerator = new FactionGenerator(worldState);
         buttonBehaviour.Init(worldState);
-        mouseBehaviour.Init(worldState);
+        mouseBehaviour.Init(worldState, buttonBehaviour);
     }
     
     void Start()

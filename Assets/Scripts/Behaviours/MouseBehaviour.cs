@@ -6,21 +6,33 @@ using UnityEngine;
 public class MouseBehaviour : MonoBehaviour
 {
     private WorldState worldState;
+    private ButtonBehaviour buttonBehaviour;
 
     private Vector3 mouseWorldPosition = Vector3.zero;
-
+    
+    //double clicking
+    private bool hasClickedRecently = false;
+    private float firstClickTime = 0.0f;
+    private float doubleClickTime = 0.5f;
+    
+    //moving clearings
     private Clearing followingClearing;
     private bool isFollowing = false;
     private Vector3 clickStart;
     private Vector3 clearingStart;
 
+    [SerializeField] private RectTransform canvasTransform;
+    [SerializeField] private GameObject changeNameButton;
+
+    //creating paths
     private bool hasTempPath = false;
     private Clearing temporaryPathStart;
     private Path temporaryPath;
 
-    public void Init(WorldState worldState)
+    public void Init(WorldState worldState, ButtonBehaviour buttonBehaviour)
     {
         this.worldState = worldState;
+        this.buttonBehaviour = buttonBehaviour;
     }
     void Update()
     {
@@ -30,6 +42,21 @@ public class MouseBehaviour : MonoBehaviour
         
         if (Input.GetMouseButtonDown(0))
         {
+            bool doubleClick = false;
+            if (!hasClickedRecently || Time.time - firstClickTime > doubleClickTime)
+            {
+                hasClickedRecently = true;
+                firstClickTime = Time.time;
+            }
+            else
+            {
+                if (Time.time - firstClickTime < doubleClickTime)
+                {
+                    doubleClick = true;
+                    hasClickedRecently = true;
+                }
+            }
+            
             bool isOverButton = UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
 
             if (!isOverButton)
@@ -45,7 +72,7 @@ public class MouseBehaviour : MonoBehaviour
                         DestroyMode(hit);
                         break;
                     case EditMode.Modify:
-                        ModifyMode(hit);
+                        ModifyMode(hit, doubleClick);
                         break;
                 }
             }
@@ -86,7 +113,7 @@ public class MouseBehaviour : MonoBehaviour
 
     public bool IsDoingAction()
     {
-        return isFollowing || hasTempPath;
+        return isFollowing || hasTempPath || buttonBehaviour.changingName;
     }
 
     private void CreateMode(RaycastHit2D hit)
@@ -122,15 +149,26 @@ public class MouseBehaviour : MonoBehaviour
         }
     }
     
-    private void ModifyMode(RaycastHit2D hit)
+    private void ModifyMode(RaycastHit2D hit, bool doubleClick)
     {
         if (hit.collider != null && hit.collider.CompareTag("Clearing"))
         {
             Clearing clearing = hit.collider.gameObject.GetComponent<Clearing>();
-            followingClearing = clearing;
-            isFollowing = true;
-            clickStart = mouseWorldPosition;
-            clearingStart = clearing.GetPosition();
+            if (doubleClick)
+            {
+                Vector3 buttonScreenPosition = Camera.main.WorldToScreenPoint(clearing.GetPosition() + new Vector3(1,0,0));
+                changeNameButton.transform.position = buttonScreenPosition;
+                changeNameButton.SetActive(true);
+                buttonBehaviour.ChangeEditingClearing(clearing);
+            }
+            else
+            {
+                changeNameButton.SetActive(false);
+                followingClearing = clearing;
+                isFollowing = true;
+                clickStart = mouseWorldPosition;
+                clearingStart = clearing.GetPosition();
+            }
         }
     }
 }
