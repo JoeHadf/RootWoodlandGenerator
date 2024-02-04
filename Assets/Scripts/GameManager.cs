@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R) && !mouseBehaviour.IsDoingAction())
+        if (Input.GetKeyDown(KeyCode.R) && !mouseBehaviour.IsDoingAction() && !buttonBehaviour.IsDoingAction())
         {
             worldState.DeleteAllClearings();
             mapGenerator.GenerateClearings();

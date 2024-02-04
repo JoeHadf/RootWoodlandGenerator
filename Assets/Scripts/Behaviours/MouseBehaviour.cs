@@ -59,7 +59,7 @@ public class MouseBehaviour : MonoBehaviour
             
             bool isOverButton = UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
 
-            if (!isOverButton)
+            if (!isOverButton && !buttonBehaviour.IsDoingAction())
             {
                 RaycastHit2D hit = Physics2D.Raycast(mouseWorldPosition, Vector2.zero, 0, LayerMask.GetMask("ClearingCircle", "ClearingPath"));
 
@@ -113,7 +113,7 @@ public class MouseBehaviour : MonoBehaviour
 
     public bool IsDoingAction()
     {
-        return isFollowing || hasTempPath || buttonBehaviour.changingName;
+        return isFollowing || hasTempPath;
     }
 
     private void CreateMode(RaycastHit2D hit)
@@ -156,14 +156,11 @@ public class MouseBehaviour : MonoBehaviour
             Clearing clearing = hit.collider.gameObject.GetComponent<Clearing>();
             if (doubleClick)
             {
-                Vector3 buttonScreenPosition = Camera.main.WorldToScreenPoint(clearing.GetPosition() + new Vector3(1,0,0));
-                changeNameButton.transform.position = buttonScreenPosition;
-                changeNameButton.SetActive(true);
-                buttonBehaviour.ChangeEditingClearing(clearing);
+                buttonBehaviour.StartModifyingClearing(clearing);
             }
             else
             {
-                changeNameButton.SetActive(false);
+                buttonBehaviour.EndModifyingClearing();
                 followingClearing = clearing;
                 isFollowing = true;
                 clickStart = mouseWorldPosition;
