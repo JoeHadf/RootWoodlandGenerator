@@ -18,6 +18,12 @@ public class ButtonBehaviour : MonoBehaviour
     [SerializeField] private GameObject denizenSelectorObject;
     [SerializeField] private DenizenSelector denizenSelector;
 
+    [SerializeField] private GameObject changeFactionButton;
+    [SerializeField] private GameObject factionMenuObject;
+    [SerializeField] private FactionSelector factionSelector;
+    [SerializeField] private Toggle hasBuildingToggle;
+    [SerializeField] private Toggle hasSympathyToggle;
+
     private WorldState worldState;
     
     public Clearing editingClearing { get; private set; }
@@ -28,12 +34,14 @@ public class ButtonBehaviour : MonoBehaviour
 
     public bool changingName { get; private set; }
     public bool changingDenizen { get; private set; }
+    public bool changingFaction { get; private set; }
 
     public void Init(WorldState worldState)
     {
         this.worldState = worldState;
         changingName = false;
         changingDenizen = false;
+        changingFaction = false;
     }
 
     private void Update()
@@ -46,6 +54,11 @@ public class ButtonBehaviour : MonoBehaviour
         if (changingDenizen)
         {
             editingClearing.SetMajorDenizen(denizenSelector.selectedDenizen);
+        }
+
+        if (changingFaction)
+        {
+            editingClearing.SetClearingControl(factionSelector.selectedFaction);
         }
     }
 
@@ -78,12 +91,16 @@ public class ButtonBehaviour : MonoBehaviour
         Vector3 clearingWorldPosition = clearing.GetPosition();
         Vector3 changeNameButtonPosition = Camera.main.WorldToScreenPoint( clearingWorldPosition + new Vector3(1,0,0));
         Vector3 changeDenizenButtonPosition = Camera.main.WorldToScreenPoint(clearingWorldPosition + new Vector3(-1, -1, 0));
+        Vector3 changeFactionButtonPosition = Camera.main.WorldToScreenPoint(clearingWorldPosition + new Vector3(-1, 1, 0));
         
         changeNameButton.transform.position = changeNameButtonPosition;
         changeNameButton.SetActive(true);
 
         changeDenizenButton.transform.position = changeDenizenButtonPosition;
         changeDenizenButton.SetActive(true);
+
+        changeFactionButton.transform.position = changeFactionButtonPosition;
+        changeFactionButton.SetActive(true);
         
         ChangeEditingClearing(clearing);
     }
@@ -92,6 +109,7 @@ public class ButtonBehaviour : MonoBehaviour
     {
         changeNameButton.SetActive(false);
         changeDenizenButton.SetActive(false);
+        changeFactionButton.SetActive(false);
     }
 
     public void StartChangingName()
@@ -104,7 +122,7 @@ public class ButtonBehaviour : MonoBehaviour
         EndModifyingClearing();
     }
 
-    public void EndChangingName()
+    private void EndChangingName()
     {
         changingName = false;
         changeNameInputFieldObject.SetActive(false);
@@ -129,10 +147,38 @@ public class ButtonBehaviour : MonoBehaviour
         denizenSelectorObject.SetActive(false);
         endModifyModeButton.SetActive(false);
     }
+
+    public void StartChangingFaction()
+    {
+        changingFaction = true;
+        factionMenuObject.transform.position = Camera.main.WorldToScreenPoint(editingClearing.GetPosition() - new Vector3(0, 1.2f, 0));
+        factionMenuObject.SetActive(true);
+        endModifyModeButton.SetActive(true);
+        factionSelector.SelectFaction(editingClearing.clearingControl);
+        hasBuildingToggle.isOn = editingClearing.hasBuilding;
+        hasSympathyToggle.isOn = editingClearing.hasSympathy;
+        EndModifyingClearing();
+    }
+
+    private void EndChangingFaction()
+    {
+        changingFaction = false;
+        factionMenuObject.SetActive(false);
+        endModifyModeButton.SetActive(false);
+    }
+
+    public void ToggleHasBuilding(bool toggleState)
+    {
+        editingClearing.SetHasBuilding(toggleState);
+    }
+
+    public void ToggleHasSympathy(bool toggleState)
+    {
+        editingClearing.SetHasSympathy(toggleState);
+    }
     
     private void ChangeEditingClearing(Clearing clearing)
     {
-        EndChangingName();
         this.editingClearing = clearing;
     }
 
@@ -140,6 +186,7 @@ public class ButtonBehaviour : MonoBehaviour
     {
         EndChangingName();
         EndChangingDenizen();
+        EndChangingFaction();
     }
 
     private void ChangeEditMode(EditMode newMode)

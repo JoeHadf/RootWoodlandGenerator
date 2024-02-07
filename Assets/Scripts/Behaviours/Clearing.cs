@@ -24,7 +24,8 @@ public class Clearing : MonoBehaviour
     
     public FactionType clearingControl { get; private set; }
     public bool hasBuilding { get; private set; }
-    public HashSet<FactionType> clearingPresence { get; private set; }
+    
+    public bool hasSympathy { get; private set; }
 
     private List<Path> paths = new List<Path>();
     
@@ -41,7 +42,8 @@ public class Clearing : MonoBehaviour
         SetClearingName(id.ToString());
         SetMajorDenizen(DenizenType.Fox);
         SetClearingControl(FactionType.Denizens);
-        clearingPresence = new HashSet<FactionType>();
+        hasBuilding = false;
+        hasSympathy = false;
     }
 
     void Start()
@@ -112,6 +114,8 @@ public class Clearing : MonoBehaviour
     {
         this.clearingControl = faction;
         controlSpriteSwitcher.SetFaction(faction);
+        
+        SetHasBuilding(hasBuilding);
     }
 
     public void SetHasBuilding(bool building)
@@ -120,29 +124,18 @@ public class Clearing : MonoBehaviour
         buildingSpriteSwitcher.SetFaction(hasBuilding ? clearingControl : FactionType.Denizens);
     }
 
-    public void SetClearingPresence(FactionType faction)
+    public void SetHasSympathy(bool sympathy)
     {
-        clearingPresence.Add(faction);
-        if (faction == FactionType.WoodlandAlliance)
+        hasSympathy = sympathy;
+        if (hasSympathy)
         {
             presenceRenderer.enabled = true;
             presenceRenderer.sprite = sympathySprite;
         }
-    }
-
-    public void RemoveClearingPresence(FactionType faction)
-    {
-        clearingPresence.Remove(faction);
-        if (faction == FactionType.WoodlandAlliance)
+        else
         {
             presenceRenderer.enabled = false;
         }
-    }
-
-    public void RemoveAllPresence()
-    {
-        clearingPresence.Clear();
-        presenceRenderer.enabled = false;
     }
 
     private Sprite GetDenizenSprite(DenizenType denizen)
