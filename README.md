@@ -8,9 +8,9 @@ Currently it generates 12 clearings in random locations and randomly chooses pat
 
 Planned Features:
 - Randomly determining faction control in each clearing (DONE).
-- Editing names and denizens and control of each clearing.
-- Adding and Deleting clearings and paths to existing woodlands (DONE)
+- Editing names and denizens and control of each clearing (DONE).
+- Adding and Deleting clearings and paths to existing woodlands (DONE),
+- Saving and loading clearing layouts.
 - Options to reroll each element (clearing locations, paths, denizens, names, faction control) seperately.
 - The river going between non-adjacent clearings that is both able to be randomly generated and editable.
-- Saving and loading clearing layouts.
 - Choosing which factions you want to be involved in faction control setup.
