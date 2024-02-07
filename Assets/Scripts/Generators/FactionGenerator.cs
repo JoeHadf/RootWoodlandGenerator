@@ -139,7 +139,7 @@ public class FactionGenerator
             bool hasSympathy = HasWoodlandAllianceSympathy(currentClearing);
             if (hasSympathy)
             {
-                currentClearing.SetClearingPresence(FactionType.WoodlandAlliance);
+                currentClearing.SetHasSympathy(true);
                 sympatheticClearingIDs.Add(currentClearing.clearingID);
             }
         }
@@ -171,7 +171,7 @@ public class FactionGenerator
 
             foreach (int adjacent in adjacentClearings)
             {
-                clearingsByID[adjacent].SetClearingPresence(FactionType.WoodlandAlliance);
+                clearingsByID[adjacent].SetHasSympathy(true);
             }
         }
     }

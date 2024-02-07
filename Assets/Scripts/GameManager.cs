@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
         clearingInfoGenerator = new ClearingInfoGenerator(worldState);
         factionGenerator = new FactionGenerator(worldState);
         buttonBehaviour.Init(worldState);
-        mouseBehaviour.Init(worldState);
+        mouseBehaviour.Init(worldState, buttonBehaviour);
     }
     
     void Start()
@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R) && !mouseBehaviour.IsDoingAction())
+        if (Input.GetKeyDown(KeyCode.R) && !mouseBehaviour.IsDoingAction() && !buttonBehaviour.IsDoingAction())
         {
             worldState.DeleteAllClearings();
             mapGenerator.GenerateClearings();
