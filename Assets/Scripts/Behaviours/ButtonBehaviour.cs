@@ -64,7 +64,7 @@ public class ButtonBehaviour : MonoBehaviour
 
     public bool IsDoingAction()
     {
-        return changingName || changingDenizen;
+        return changingName || changingDenizen || changingFaction;
     }
 
     public void NextEditMode()
