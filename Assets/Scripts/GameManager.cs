@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Experimental.AI;
@@ -17,6 +18,7 @@ public class GameManager : MonoBehaviour
     private MapGenerator mapGenerator;
     private ClearingInfoGenerator clearingInfoGenerator;
     private FactionGenerator factionGenerator;
+    private FileGenerator fileGenerator;
 
     private WorldState worldState;
 
@@ -27,6 +29,8 @@ public class GameManager : MonoBehaviour
         mapGenerator = new MapGenerator(worldState);
         clearingInfoGenerator = new ClearingInfoGenerator(worldState);
         factionGenerator = new FactionGenerator(worldState);
+        fileGenerator = new FileGenerator(worldState);
+        
         buttonBehaviour.Init(worldState);
         mouseBehaviour.Init(worldState, buttonBehaviour);
     }
@@ -60,6 +64,11 @@ public class GameManager : MonoBehaviour
             factionGenerator.SetupWoodlandAlliance();
             factionGenerator.SetupDenizens();
             factionGenerator.Reset();
+        }
+
+        if (Input.GetKeyDown(KeyCode.S) && !mouseBehaviour.IsDoingAction() && !buttonBehaviour.IsDoingAction())
+        {
+            fileGenerator.GenerateFile();
         }
     }
 }
