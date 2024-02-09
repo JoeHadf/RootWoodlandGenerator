@@ -25,6 +25,9 @@ public class Path : MonoBehaviour
         
         startClearing.RegisterPath(this);
         endClearing.RegisterPath(this);
+
+        startClearing.OnClearingPositionChanged += UpdatePath;
+        endClearing.OnClearingPositionChanged += UpdatePath;
         
         UpdatePath();
     }
@@ -35,6 +38,12 @@ public class Path : MonoBehaviour
 
         this.startClearing = start;
         this.pathID = new PathID(startClearing.clearingID, -1);
+    }
+
+    public void OnDestroy()
+    {
+        startClearing.OnClearingPositionChanged -= UpdatePath;
+        endClearing.OnClearingPositionChanged -= UpdatePath;
     }
 
     public void MakePathPermanent(Clearing end)
@@ -58,10 +67,6 @@ public class Path : MonoBehaviour
         if (isTemporary)
         {
             UpdateTemporaryPath();
-        }
-        else
-        {
-            UpdatePath();
         }
     }
 
