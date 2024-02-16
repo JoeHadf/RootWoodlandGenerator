@@ -58,6 +58,19 @@ public class FileGenerator
         }
     }
 
+    public void ReadFileWithName(string name)
+    {
+        string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        string myWoodlandsFolderPath = System.IO.Path.Combine(myDocumentsPath, "MyWoodlands");
+        string filePath = System.IO.Path.Combine(myWoodlandsFolderPath, name + ".root");
+
+        if (File.Exists(filePath))
+        {
+            worldState.DeleteAllClearings();
+            ReadFile(File.ReadAllText(filePath));
+        }
+    }
+
     public void ReadFile(string file)
     {
         string[] splitFile = file.Split("\r\n\r\n");
