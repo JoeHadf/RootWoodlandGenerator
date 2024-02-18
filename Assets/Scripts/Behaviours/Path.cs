@@ -43,7 +43,10 @@ public class Path : MonoBehaviour
     public void OnDestroy()
     {
         startClearing.OnClearingPositionChanged -= UpdatePath;
-        endClearing.OnClearingPositionChanged -= UpdatePath;
+        if (!isTemporary)
+        {
+            endClearing.OnClearingPositionChanged -= UpdatePath;
+        }
     }
 
     public void MakePathPermanent(Clearing end)
