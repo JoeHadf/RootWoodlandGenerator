@@ -6,6 +6,28 @@ public class ClearingInfoGenerator
 {
     private WorldState worldState;
 
+    private static string[] defaultNames = new string[]
+    {
+        "Patchwood",
+        "Clutcher's Creek",
+        "Rooston",
+        "Limberly",
+        "Flathome",
+        "Opensky Haven",
+        "Underleaf",
+        "Pinehorn",
+        "Milltown",
+        "Allaburrow",
+        "Tonnery",
+        "Icetrap",
+        "Ironvein",
+        "Sundell",
+        "Oakenhold",
+        "Blackpaw's Dam",
+        "Firehollow",
+        "Windgap Refuge",
+    };
+
     public ClearingInfoGenerator(WorldState worldState)
     {
         this.worldState = worldState;
@@ -24,7 +46,7 @@ public class ClearingInfoGenerator
 
     public void GenerateClearingNames()
     {
-        string[] names = System.IO.File.ReadAllLines("Assets/DefaultClearingNames.txt");
+        string[] names = (string[]) defaultNames.Clone();
         List<Clearing> clearings = worldState.clearings;
 
         int nameCount = names.Length;
