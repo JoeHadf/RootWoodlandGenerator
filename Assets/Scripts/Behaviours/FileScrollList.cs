@@ -25,10 +25,13 @@ public class FileScrollList : MonoBehaviour
     
     public void StartScrollList(List<string> fileNames)
     {
+        DeleteButtons();
+        
         for (int i = 0; i < fileNames.Count; i++)
         {
             AddButton(fileNames[i]);
         }
+        
         OnScrollBarUsed();
 
         currentListSize = buttons.Count * buttonSize;
@@ -73,8 +76,6 @@ public class FileScrollList : MonoBehaviour
 
         int startIndex =(int)(listScrollAmount / buttonSize);
         int endIndex = startIndex + (int)(listMaxSize / buttonSize) - 1;
-        
-        Debug.Log($"start {startIndex} end {endIndex}");
 
         for (int i = 0; i < buttons.Count; i++)
         {

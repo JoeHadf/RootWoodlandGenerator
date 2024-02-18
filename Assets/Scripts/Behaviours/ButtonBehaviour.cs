@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -24,7 +25,13 @@ public class ButtonBehaviour : MonoBehaviour
     [SerializeField] private Toggle hasBuildingToggle;
     [SerializeField] private Toggle hasSympathyToggle;
 
+    [SerializeField] private GameObject fileScrollListObject;
+    [SerializeField] private FileScrollList fileScrollList;
+
+    [SerializeField] private GameObject fileSaveMenuObject;
+
     private WorldState worldState;
+    private FileManager fileManager;
     
     public Clearing editingClearing { get; private set; }
     
@@ -35,13 +42,18 @@ public class ButtonBehaviour : MonoBehaviour
     public bool changingName { get; private set; }
     public bool changingDenizen { get; private set; }
     public bool changingFaction { get; private set; }
+    
+    public bool loadingWoodland { get; private set; }
 
-    public void Init(WorldState worldState)
+    public void Init(WorldState worldState, FileManager fileManager)
     {
         this.worldState = worldState;
+        this.fileManager = fileManager;
+        
         changingName = false;
         changingDenizen = false;
         changingFaction = false;
+        loadingWoodland = false;
     }
 
     private void Update()
@@ -64,7 +76,7 @@ public class ButtonBehaviour : MonoBehaviour
 
     public bool IsDoingAction()
     {
-        return changingName || changingDenizen || changingFaction;
+        return changingName || changingDenizen || changingFaction || loadingWoodland;
     }
 
     public void NextEditMode()
@@ -84,6 +96,18 @@ public class ButtonBehaviour : MonoBehaviour
                     break;
             }
         }
+    }
+
+    public void OpenScrollList()
+    {
+        fileScrollListObject.SetActive(true);
+        List<string> savedWoodlands = fileManager.GetAllSavedWoodlands();
+        fileScrollList.StartScrollList(savedWoodlands);
+    }
+
+    public void OpenSaveMenu()
+    {
+        fileSaveMenuObject.SetActive(true);
     }
 
     public void StartModifyingClearing(Clearing clearing)

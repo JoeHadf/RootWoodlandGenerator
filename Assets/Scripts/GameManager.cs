@@ -4,12 +4,12 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private GameObject clearing;
     [SerializeField] private GameObject path;
-    [SerializeField] private Material lineMaterial;
 
     [SerializeField] private ButtonBehaviour buttonBehaviour;
     [SerializeField] private MouseBehaviour mouseBehaviour;
 
     [SerializeField] private FileScrollList fileScrollList;
+    [SerializeField] private FileSaveMenu fileSaveMenu;
 
     private MapGenerator mapGenerator;
     private ClearingInfoGenerator clearingInfoGenerator;
@@ -31,9 +31,10 @@ public class GameManager : MonoBehaviour
 
         fileManager = new FileManager();
         
-        buttonBehaviour.Init(worldState);
+        buttonBehaviour.Init(worldState, fileManager);
         mouseBehaviour.Init(worldState, buttonBehaviour);
         fileScrollList.Init(fileGenerator);
+        fileSaveMenu.Init(fileGenerator);
     }
     
     void Start()
@@ -57,11 +58,6 @@ public class GameManager : MonoBehaviour
             factionGenerator.SetupWoodlandAlliance();
             factionGenerator.SetupDenizens();
             factionGenerator.Reset();
-        }
-
-        if (Input.GetKeyDown(KeyCode.S) && !mouseBehaviour.IsDoingAction() && !buttonBehaviour.IsDoingAction())
-        {
-            fileGenerator.GenerateFile();
         }
     }
 }

@@ -13,7 +13,7 @@ public class FileGenerator
         this.worldState = worldState;
     }
 
-    public void GenerateFile()
+    public void GenerateFile(string fileName)
     {
         List<Clearing> clearings = worldState.clearings;
         Dictionary<int, int> clearingIDToIndex = new Dictionary<int, int>(clearings.Count);
@@ -41,8 +41,9 @@ public class FileGenerator
         }
 
         string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        string myWoodlandsFolderPath = System.IO.Path.Combine(path, "MyWoodlands");
 
-        using (StreamWriter file = new StreamWriter(System.IO.Path.Combine(path, "MyWoodland.root")))
+        using (StreamWriter file = new StreamWriter(System.IO.Path.Combine(myWoodlandsFolderPath, $"{fileName}.root")))
         {
             for (int i = 0; i < clearingLines.Length; i++)
             {
