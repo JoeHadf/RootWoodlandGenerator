@@ -55,6 +55,11 @@ public class WorldState
         return currentClearing;
     }
     
+    public Path GeneratePath(int startClearingID, int endClearingID)
+    {
+        return GeneratePath(clearingsByID[startClearingID], clearingsByID[endClearingID]);
+    }
+    
     public Path GeneratePath(Clearing startClearing, Clearing endClearing)
     {
         PathID generatedPathID = new PathID(startClearing.clearingID, endClearing.clearingID);
@@ -157,6 +162,7 @@ public class WorldState
         {
             if (paths[i].pathID.Equals(id))
             {
+                paths[i].OnDestroy();
                 paths.RemoveAt(i);
                 break;
             }
@@ -182,6 +188,7 @@ public class WorldState
     {
         for (int i = 0; i < paths.Count; i++)
         {
+            paths[i].OnDestroy();
             Object.Destroy(paths[i].GameObject());
         }
 

@@ -36,6 +36,10 @@ public class Clearing : MonoBehaviour
     private float xRange = 9.5f;
     private float yRange = 4.0f;
 
+    public delegate void PositionEventHandler();
+
+    public event PositionEventHandler OnClearingPositionChanged;
+
     public void Init(int id)
     {
         this.clearingID = id;
@@ -81,6 +85,8 @@ public class Clearing : MonoBehaviour
         float xBounded = Math.Clamp(position.x, -xRange, xRange);
         float yBounded = Math.Clamp(position.y, -yRange, yRange);
         transform.localPosition = new Vector3(xBounded, yBounded, 0);
+
+        if (OnClearingPositionChanged != null) OnClearingPositionChanged.Invoke();
     }
 
     private void DrawCircle()
