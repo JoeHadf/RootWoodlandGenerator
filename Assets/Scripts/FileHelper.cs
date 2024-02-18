@@ -1,20 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Enumeration;
-using UnityEngine;
 
-
-public class FileManager
+public static class FileHelper
 {
-    public DirectoryInfo GetMyWoodlandsFolder()
+    public static string GetMyWoodlandsFolderPath()
     {
         string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        DirectoryInfo myWoodlandsFolder = Directory.CreateDirectory(System.IO.Path.Combine(myDocumentsPath, "MyWoodlands"));
+        string myWoodlandsPath = System.IO.Path.Combine(myDocumentsPath, "MyWoodlands");
+        return myWoodlandsPath;
+    }
+    public static DirectoryInfo GetMyWoodlandsFolder()
+    {
+        DirectoryInfo myWoodlandsFolder = Directory.CreateDirectory(GetMyWoodlandsFolderPath());
         return myWoodlandsFolder;
     }
 
-    public List<string> GetAllSavedWoodlands()
+    public static List<string> GetAllSavedWoodlands()
     {
         DirectoryInfo myWoodlandsFolder = GetMyWoodlandsFolder();
         FileInfo[] woodlandFiles = myWoodlandsFolder.GetFiles();

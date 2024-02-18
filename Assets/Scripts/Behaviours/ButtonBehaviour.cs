@@ -31,7 +31,6 @@ public class ButtonBehaviour : MonoBehaviour
     [SerializeField] private GameObject fileSaveMenuObject;
 
     private WorldState worldState;
-    private FileManager fileManager;
     
     public Clearing editingClearing { get; private set; }
     
@@ -45,10 +44,9 @@ public class ButtonBehaviour : MonoBehaviour
     
     public bool loadingWoodland { get; private set; }
 
-    public void Init(WorldState worldState, FileManager fileManager)
+    public void Init(WorldState worldState)
     {
         this.worldState = worldState;
-        this.fileManager = fileManager;
         
         changingName = false;
         changingDenizen = false;
@@ -101,7 +99,7 @@ public class ButtonBehaviour : MonoBehaviour
     public void OpenScrollList()
     {
         fileScrollListObject.SetActive(true);
-        List<string> savedWoodlands = fileManager.GetAllSavedWoodlands();
+        List<string> savedWoodlands = FileHelper.GetAllSavedWoodlands();
         fileScrollList.StartScrollList(savedWoodlands);
     }
 

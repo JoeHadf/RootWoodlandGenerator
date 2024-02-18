@@ -16,8 +16,6 @@ public class GameManager : MonoBehaviour
     private FactionGenerator factionGenerator;
     private FileGenerator fileGenerator;
 
-    private FileManager fileManager;
-
     private WorldState worldState;
 
     void Awake()
@@ -28,10 +26,8 @@ public class GameManager : MonoBehaviour
         clearingInfoGenerator = new ClearingInfoGenerator(worldState);
         factionGenerator = new FactionGenerator(worldState);
         fileGenerator = new FileGenerator(worldState);
-
-        fileManager = new FileManager();
         
-        buttonBehaviour.Init(worldState, fileManager);
+        buttonBehaviour.Init(worldState);
         mouseBehaviour.Init(worldState, buttonBehaviour);
         fileScrollList.Init(fileGenerator);
         fileSaveMenu.Init(fileGenerator);
@@ -39,7 +35,7 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
-        List<string> savedWoodlands = fileManager.GetAllSavedWoodlands();
+        List<string> savedWoodlands = FileHelper.GetAllSavedWoodlands();
         fileScrollList.StartScrollList(savedWoodlands);
     }
 

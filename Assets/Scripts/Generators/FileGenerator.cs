@@ -40,10 +40,9 @@ public class FileGenerator
             pathLines[i] = currentLine;
         }
 
-        string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        string myWoodlandsFolderPath = System.IO.Path.Combine(path, "MyWoodlands");
+        string myWoodlandsPath = FileHelper.GetMyWoodlandsFolderPath();
 
-        using (StreamWriter file = new StreamWriter(System.IO.Path.Combine(myWoodlandsFolderPath, $"{fileName}.root")))
+        using (StreamWriter file = new StreamWriter(System.IO.Path.Combine(myWoodlandsPath, fileName + ".root")))
         {
             for (int i = 0; i < clearingLines.Length; i++)
             {
@@ -61,9 +60,8 @@ public class FileGenerator
 
     public void ReadFileWithName(string name)
     {
-        string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        string myWoodlandsFolderPath = System.IO.Path.Combine(myDocumentsPath, "MyWoodlands");
-        string filePath = System.IO.Path.Combine(myWoodlandsFolderPath, name + ".root");
+        string myWoodlandsPath = FileHelper.GetMyWoodlandsFolderPath();
+        string filePath = System.IO.Path.Combine(myWoodlandsPath, name + ".root");
 
         if (File.Exists(filePath))
         {
