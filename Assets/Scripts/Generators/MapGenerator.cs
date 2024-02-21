@@ -11,17 +11,11 @@ using Random = UnityEngine.Random;
 public class MapGenerator
 {
     private WorldState worldState;
-    private GameObject clearingObject;
-    private GameObject pathObject;
     
     private float xRange = 9.5f;
     private float yRange = 4.0f;
     
-    private float clearingRadius = 1.0f;
-    private float lineWidth = 0.2f;
     private int clearingCount = 12;
-
-    private float minPathLength = 1.5f;
 
     private int forceSteps = 500;
     private float maxForce = 0.5f;
@@ -34,7 +28,7 @@ public class MapGenerator
 
     public void GenerateClearings()
     {
-        float clearingDistance =  2 * clearingRadius + 0.5f * lineWidth + minPathLength;
+        float clearingDistance =  2 * GlobalConstants.clearingRadius + 0.5f * GlobalConstants.pathWidth + GlobalConstants.minPathLength;
         
         Vector3[] clearingPositions = new Vector3[clearingCount];
         
@@ -168,7 +162,7 @@ public class MapGenerator
         Vector3 c2Pos = clearing2.GetPosition();
         Vector3 c1ToC2 = c2Pos - c1Pos;
 
-        float radius = clearingRadius + 0.5f * lineWidth;
+        float radius = GlobalConstants.clearingRadius + 0.5f * GlobalConstants.pathWidth;
 
         float squareTerm = (c1ToC2.x) * (c1ToC2.x) + (c1ToC2.y) * (c1ToC2.y);
         
@@ -244,15 +238,6 @@ public class MapGenerator
         }
 
         return false;
-    }
-    
-    public void DoForceStep()
-    {
-        float clearingDistance =  2 * clearingRadius + 0.5f * lineWidth + minPathLength;
-        if (ClearingsOverlap(clearingDistance))
-        {
-            ApplyForce(clearingDistance);
-        }
     }
 
     private void ApplyForce(float maxForceDistance)

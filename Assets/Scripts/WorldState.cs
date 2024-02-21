@@ -12,8 +12,9 @@ public class WorldState
     public Dictionary<int, Clearing> clearingsByID { get; private set; }
     public List<Path> paths { get; private set; }
     public Dictionary<PathID, Path> pathsByID { get; private set; }
-    
     public Dictionary<int, HashSet<int>> adjacentClearingsByID { get; private set; }
+
+    public List<Clearing> riverClearings;
 
     private GameObject clearingObject;
     private GameObject pathObject;
@@ -31,6 +32,7 @@ public class WorldState
         paths = new List<Path>();
         pathsByID = new Dictionary<PathID, Path>();
         adjacentClearingsByID = new Dictionary<int, HashSet<int>>();
+        riverClearings = new List<Clearing>();
         
         this.clearingObject = clearingObject;
         this.pathObject = pathObject;

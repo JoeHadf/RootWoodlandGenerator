@@ -554,6 +554,8 @@ GameObject:
   - component: {fileID: -4197675140966839740}
   - component: {fileID: 4067364105025506690}
   - component: {fileID: 1780990159056722286}
+  - component: {fileID: 3971088424724907299}
+  - component: {fileID: 6356363960067736056}
   m_Layer: 10
   m_Name: Clearing
   m_TagString: Clearing
@@ -595,6 +597,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textMesh: {fileID: 9095214627395562693}
   lineRenderer: {fileID: -4197675140966839740}
+  meshFilter: {fileID: 6356363960067736056}
   denizenRenderer: {fileID: 1730135938622204264}
   presenceRenderer: {fileID: 1469058524095003433}
   controlSpriteSwitcher: {fileID: 3288055395983238836}
@@ -769,3 +772,53 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 1
+--- !u!23 &3971088424724907299
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8254799494066965488}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 91bf84f820a204c4a8d63b5b44fb3683, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &6356363960067736056
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8254799494066965488}
+  m_Mesh: {fileID: 0}

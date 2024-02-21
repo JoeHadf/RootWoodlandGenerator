@@ -49,19 +49,9 @@ public class Path : MonoBehaviour
         }
     }
 
-    public void MakePathPermanent(Clearing end)
-    {
-        if (isTemporary)
-        {
-            this.endClearing = end;
-            this.pathID = new PathID(startClearing.clearingID, endClearing.clearingID);
-            
-            endClearing.RegisterPath(this);
-        }
-    }
-
     private void Start()
     {
+        lineRenderer.startWidth = GlobalConstants.pathWidth;
         edgeCollider.edgeRadius = 0.5f * lineRenderer.startWidth;
     }
 

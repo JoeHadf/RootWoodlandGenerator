@@ -11,10 +11,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private FileScrollList fileScrollList;
     [SerializeField] private FileSaveMenu fileSaveMenu;
 
+    [SerializeField] private LineRenderer river;
+
     private MapGenerator mapGenerator;
     private ClearingInfoGenerator clearingInfoGenerator;
     private FactionGenerator factionGenerator;
     private FileGenerator fileGenerator;
+    private BezierSplineGenerator bezierSplineGenerator;
 
     private WorldState worldState;
 
@@ -26,6 +29,7 @@ public class GameManager : MonoBehaviour
         clearingInfoGenerator = new ClearingInfoGenerator(worldState);
         factionGenerator = new FactionGenerator(worldState);
         fileGenerator = new FileGenerator(worldState);
+        bezierSplineGenerator = new BezierSplineGenerator();
         
         buttonBehaviour.Init(worldState);
         mouseBehaviour.Init(worldState, buttonBehaviour);
@@ -35,8 +39,28 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
-        List<string> savedWoodlands = FileHelper.GetAllSavedWoodlands();
-        fileScrollList.StartScrollList(savedWoodlands);
+        fileGenerator.ReadFileWithName("littleWoodland");
+
+        List<Clearing> predefinedRiver = new List<Clearing>()
+            { worldState.clearingsByID[2], worldState.clearingsByID[5], worldState.clearingsByID[4] };
+        worldState.riverClearings = predefinedRiver;
+        UpdateRiver();
+
+        for (int i = 0; i < predefinedRiver.Count; i++)
+        {
+            predefinedRiver[i].OnClearingPositionChanged += UpdateRiver;
+        }
+    }
+
+    void UpdateRiver()
+    {
+        List<Vector3> riverSpline = bezierSplineGenerator.GetRiverSpline(worldState.riverClearings);
+        river.positionCount = riverSpline.Count;
+
+        for (int i = 0; i < riverSpline.Count; i++)
+        {
+            river.SetPosition(i, riverSpline[i]);
+        }
     }
 
     void Update()
