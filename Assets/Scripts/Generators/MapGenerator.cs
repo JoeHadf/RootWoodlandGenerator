@@ -62,7 +62,7 @@ public class MapGenerator
         Dictionary<int, Clearing> clearingsByID =  worldState.clearingsByID;
         bool isConnected = false;
 
-        while (!isConnected)
+        while (!isConnected && possiblePaths.Count > 0)
         {
             int randomPathIndex = Random.Range(0, possiblePaths.Count);
             PathID pathToAdd = possiblePaths.ElementAt(randomPathIndex);
@@ -103,8 +103,9 @@ public class MapGenerator
             {
                 Clearing endClearing = clearings[j];
                 bool pathIntersectsClearing = PathIntersectsClearing(startClearing, endClearing);
+                bool pathIsOnRiver = worldState.river.PathIsOnRiver(startClearing, endClearing);
                 
-                if (!pathIntersectsClearing)
+                if (!pathIntersectsClearing && !pathIsOnRiver)
                 {
                     possiblePaths.Add(new PathID(startClearing.clearingID, endClearing.clearingID));
                 }

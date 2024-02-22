@@ -8,6 +8,7 @@ public class FileScrollList : MonoBehaviour
 {
     [SerializeField] private GameObject fileSelectButtonObject;
     [SerializeField] private Scrollbar scrollBar;
+    [SerializeField] private ButtonBehaviour buttonBehaviour;
 
     private FileGenerator fileGenerator;
 
@@ -41,7 +42,7 @@ public class FileScrollList : MonoBehaviour
     public void EndScrollList()
     {
         DeleteButtons();
-        gameObject.SetActive(false);
+        buttonBehaviour.CloseScrollList();
     }
 
     public void SelectFile(string fileName)

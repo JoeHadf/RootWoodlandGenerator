@@ -14,7 +14,6 @@ public class FileSaveMenu : MonoBehaviour
 
     public void GenerateFileWithName()
     {
-        gameObject.SetActive(false);
         fileGenerator.GenerateFile(fileNameInputField.text);
     }
 }

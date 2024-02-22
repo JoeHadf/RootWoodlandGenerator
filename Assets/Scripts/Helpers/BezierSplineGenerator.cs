@@ -2,35 +2,40 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class BezierSplineGenerator
+public static class BezierSplineHelper
 {
-    private const int splineSegmentSubdivisions = 10;
+    private const int splineSegmentSubdivisions = 13;
 
-    public List<Vector3> GetRiverSpline(List<Clearing> clearings)
+    public static List<Vector3> GetRiverSpline(List<Clearing> clearings)
     {
-        Vector3[] clearingCentres = new Vector3[clearings.Count + 2];
-
-        for (int i = 0; i < clearings.Count; i++)
+        if (clearings.Count >= 2)
         {
-            clearingCentres[i + 1] = clearings[i].GetPosition();
+            Vector3[] clearingCentres = new Vector3[clearings.Count + 2];
+
+            for (int i = 0; i < clearings.Count; i++)
+            {
+                clearingCentres[i + 1] = clearings[i].GetPosition();
+            }
+
+            clearingCentres[0] = clearings[0].GetClosestSide();
+            clearingCentres[^1] = clearings[^1].GetClosestSide();
+
+            BezierSplineSegment[] splineSegments = GetBezierSplineSegments(clearingCentres);
+
+            List<Vector3> spline = new List<Vector3>(splineSegments.Length * splineSegmentSubdivisions + 1);
+
+            for (int i = 0; i < splineSegments.Length; i++)
+            {
+                spline.AddRange(GetSubdividedSegment(splineSegments[i], i == splineSegments.Length - 1));
+            }
+
+            return spline;
         }
 
-        clearingCentres[0] = clearings[0].GetClosestSide();
-        clearingCentres[^1] = clearings[^1].GetClosestSide();
-
-        BezierSplineSegment[] splineSegments = GetBezierSplineSegments(clearingCentres);
-
-        List<Vector3> spline = new List<Vector3>(splineSegments.Length * splineSegmentSubdivisions + 1);
-
-        for (int i = 0; i < splineSegments.Length; i++)
-        {
-            spline.AddRange(GetSubdividedSegment(splineSegments[i], i == splineSegments.Length - 1));
-        }
-
-        return spline;
+        return new List<Vector3>();
     }
     
-    private BezierSplineSegment[] GetBezierSplineSegments(Vector3[] joins)
+    private static BezierSplineSegment[] GetBezierSplineSegments(Vector3[] joins)
     {
         Vector3[] secondPoints = new Vector3[joins.Length - 1];
         secondPoints[0] = Vector3.Lerp(joins[0], joins[1], 0.25f);
@@ -67,7 +72,7 @@ public class BezierSplineGenerator
         return segments;
     }
 
-    private Vector3[] GetSubdividedSegment(BezierSplineSegment bezierSplineSegment, bool includeEndPoint)
+    private static Vector3[] GetSubdividedSegment(BezierSplineSegment bezierSplineSegment, bool includeEndPoint)
     {
         int segmentLength = (includeEndPoint) ? splineSegmentSubdivisions + 1 : splineSegmentSubdivisions;
         Vector3[] subdividedSegment = new Vector3[segmentLength];

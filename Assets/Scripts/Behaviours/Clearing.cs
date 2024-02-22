@@ -28,8 +28,6 @@ public class Clearing : MonoBehaviour
     public bool hasBuilding { get; private set; }
     
     public bool hasSympathy { get; private set; }
-
-    private List<Path> paths = new List<Path>();
     
     private int circleSteps = 15;
     
@@ -76,21 +74,6 @@ public class Clearing : MonoBehaviour
     public Vector3 GetPathStart(Vector3 normDirection)
     {
         return transform.localPosition + normDirection * GlobalConstants.clearingRadius;
-    }
-
-    public void RegisterPath(Path adjacentPath)
-    {
-        paths.Add(adjacentPath);
-    }
-
-    public void DeregisterPath(Path nonAdjacentPath)
-    {
-        paths.Remove(nonAdjacentPath);
-    }
-
-    public void DeregisterAllPaths()
-    {
-        paths.Clear();
     }
 
     public Vector3 GetPosition()

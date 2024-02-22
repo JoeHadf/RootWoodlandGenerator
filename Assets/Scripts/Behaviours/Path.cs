@@ -22,9 +22,6 @@ public class Path : MonoBehaviour
         this.startClearing = start;
         this.endClearing = end;
         this.pathID = new PathID(startClearing.clearingID, endClearing.clearingID);
-        
-        startClearing.RegisterPath(this);
-        endClearing.RegisterPath(this);
 
         startClearing.OnClearingPositionChanged += UpdatePath;
         endClearing.OnClearingPositionChanged += UpdatePath;
@@ -103,16 +100,5 @@ public class Path : MonoBehaviour
         lineRenderer.SetPosition(1, end);
         
         UpdateCollider();
-    }
-
-    public (Vector3 start, Vector3 end) GetEndPoints()
-    {
-        return (lineRenderer.GetPosition(0), lineRenderer.GetPosition(1));
-    }
-
-    public void DeregisterAdjacentClearings()
-    {
-        startClearing.DeregisterPath(this);
-        endClearing.DeregisterPath(this);
     }
 }

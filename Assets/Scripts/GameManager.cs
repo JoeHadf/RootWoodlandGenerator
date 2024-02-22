@@ -11,25 +11,25 @@ public class GameManager : MonoBehaviour
     [SerializeField] private FileScrollList fileScrollList;
     [SerializeField] private FileSaveMenu fileSaveMenu;
 
-    [SerializeField] private LineRenderer river;
+    [SerializeField] private River river;
 
     private MapGenerator mapGenerator;
     private ClearingInfoGenerator clearingInfoGenerator;
+    private RiverGenerator riverGenerator;
     private FactionGenerator factionGenerator;
     private FileGenerator fileGenerator;
-    private BezierSplineGenerator bezierSplineGenerator;
 
     private WorldState worldState;
 
     void Awake()
     {
-        worldState = new WorldState(clearing, path);
+        worldState = new WorldState(clearing, path, river);
         
         mapGenerator = new MapGenerator(worldState);
         clearingInfoGenerator = new ClearingInfoGenerator(worldState);
+        riverGenerator = new RiverGenerator(worldState);
         factionGenerator = new FactionGenerator(worldState);
         fileGenerator = new FileGenerator(worldState);
-        bezierSplineGenerator = new BezierSplineGenerator();
         
         buttonBehaviour.Init(worldState);
         mouseBehaviour.Init(worldState, buttonBehaviour);
@@ -39,6 +39,7 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
+        /*
         fileGenerator.ReadFileWithName("littleWoodland");
 
         List<Clearing> predefinedRiver = new List<Clearing>()
@@ -50,17 +51,7 @@ public class GameManager : MonoBehaviour
         {
             predefinedRiver[i].OnClearingPositionChanged += UpdateRiver;
         }
-    }
-
-    void UpdateRiver()
-    {
-        List<Vector3> riverSpline = bezierSplineGenerator.GetRiverSpline(worldState.riverClearings);
-        river.positionCount = riverSpline.Count;
-
-        for (int i = 0; i < riverSpline.Count; i++)
-        {
-            river.SetPosition(i, riverSpline[i]);
-        }
+        */
     }
 
     void Update()
@@ -69,6 +60,7 @@ public class GameManager : MonoBehaviour
         {
             worldState.DeleteAllClearings();
             mapGenerator.GenerateClearings();
+            riverGenerator.GenerateRiver();
             mapGenerator.GeneratePaths();
             clearingInfoGenerator.GenerateDenizens();
             clearingInfoGenerator.GenerateClearingNames();
