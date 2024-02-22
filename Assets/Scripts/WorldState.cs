@@ -12,8 +12,9 @@ public class WorldState
     public Dictionary<int, Clearing> clearingsByID { get; private set; }
     public List<Path> paths { get; private set; }
     public Dictionary<PathID, Path> pathsByID { get; private set; }
-    
     public Dictionary<int, HashSet<int>> adjacentClearingsByID { get; private set; }
+
+    public River river;
 
     private GameObject clearingObject;
     private GameObject pathObject;
@@ -23,7 +24,7 @@ public class WorldState
     
     private int nextID;
 
-    public WorldState(GameObject clearingObject, GameObject pathObject)
+    public WorldState(GameObject clearingObject, GameObject pathObject, River river)
     {
         editMode = EditMode.Modify;
         clearings = new List<Clearing>();
@@ -34,6 +35,7 @@ public class WorldState
         
         this.clearingObject = clearingObject;
         this.pathObject = pathObject;
+        this.river = river;
         
         clearingsParent = new GameObject("ClearingsParent").transform;
         pathsParent = new GameObject("PathsParent").transform;
@@ -134,6 +136,8 @@ public class WorldState
         }
 
         Clearing clearingToDelete = clearingsByID[id];
+        
+        river.RemoveClearingFromRiver(clearingToDelete);
 
         for (int i = 0; i < clearings.Count; i++)
         {
@@ -150,8 +154,6 @@ public class WorldState
     public void DeletePath(PathID id)
     {
         Path pathToDelete = pathsByID[id];
-
-        pathToDelete.DeregisterAdjacentClearings();
         
         pathsByID.Remove(id);
 
@@ -174,32 +176,23 @@ public class WorldState
     public void DeleteAllClearings()
     {
         DeleteAllPaths();
+
+        int clearingCount = clearings.Count;
         
-        for (int i = 0; i < clearings.Count; i++)
+        for (int i = 0; i < clearingCount; i++)
         {
-            Object.Destroy(clearings[i].GameObject());
+            DeleteClearing(clearings[0].clearingID);
         }
-        
-        clearings.Clear();
-        clearingsByID.Clear();
     }
 
     public void DeleteAllPaths()
     {
-        for (int i = 0; i < paths.Count; i++)
+        int pathCount = paths.Count;
+        
+        for (int i = 0; i < pathCount; i++)
         {
-            paths[i].OnDestroy();
-            Object.Destroy(paths[i].GameObject());
+            DeletePath(paths[0].pathID);
         }
-
-        for (int i = 0; i < clearings.Count; i++)
-        {
-            clearings[i].DeregisterAllPaths();
-        }
-
-        adjacentClearingsByID.Clear();
-        paths.Clear();
-        pathsByID.Clear();
     }
 
     public bool ClearingsAreAdjacent(int clearing1ID, int clearing2ID)
@@ -227,5 +220,6 @@ public enum EditMode
 {
     Modify,
     Create,
-    Destroy
+    Destroy,
+    EditRiver,
 }

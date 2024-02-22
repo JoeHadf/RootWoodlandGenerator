@@ -8,6 +8,8 @@ public class Clearing : MonoBehaviour
 {
     [SerializeField] private TextMeshPro textMesh;
     [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private MeshFilter meshFilter;
+    
     [SerializeField] private SpriteRenderer denizenRenderer;
     [SerializeField] private SpriteRenderer presenceRenderer;
     [SerializeField] private FactionSpriteSwitcher controlSpriteSwitcher;
@@ -26,12 +28,8 @@ public class Clearing : MonoBehaviour
     public bool hasBuilding { get; private set; }
     
     public bool hasSympathy { get; private set; }
-
-    private List<Path> paths = new List<Path>();
     
-    private float clearingRadius = 1.0f;
     private int circleSteps = 15;
-    private float lineWidth = 0.2f;
     
     private float xRange = 9.5f;
     private float yRange = 4.0f;
@@ -39,6 +37,24 @@ public class Clearing : MonoBehaviour
     public delegate void PositionEventHandler();
 
     public event PositionEventHandler OnClearingPositionChanged;
+
+    public Vector3 GetClosestSide()
+    {
+        Vector3 clearingPosition = transform.position;
+
+        int xSign = Math.Sign(clearingPosition.x);
+        int ySign = Math.Sign(clearingPosition.y);
+
+        float xSideDistance = xRange - Math.Abs(clearingPosition.x);
+        float ySideDistance = yRange - Math.Abs(clearingPosition.y);
+
+        if (xSideDistance < ySideDistance)
+        {
+            return new Vector3(xSign * (xRange + 5), clearingPosition.y, 0);
+        }
+        
+        return new Vector3(clearingPosition.x, ySign * (yRange + 5), 0);
+    }
 
     public void Init(int id)
     {
@@ -52,27 +68,12 @@ public class Clearing : MonoBehaviour
 
     void Start()
     {
-        DrawCircle();
+        DrawOutline();
     }
     
     public Vector3 GetPathStart(Vector3 normDirection)
     {
-        return transform.localPosition + normDirection * clearingRadius;
-    }
-
-    public void RegisterPath(Path adjacentPath)
-    {
-        paths.Add(adjacentPath);
-    }
-
-    public void DeregisterPath(Path nonAdjacentPath)
-    {
-        paths.Remove(nonAdjacentPath);
-    }
-
-    public void DeregisterAllPaths()
-    {
-        paths.Clear();
+        return transform.localPosition + normDirection * GlobalConstants.clearingRadius;
     }
 
     public Vector3 GetPosition()
@@ -89,19 +90,33 @@ public class Clearing : MonoBehaviour
         if (OnClearingPositionChanged != null) OnClearingPositionChanged.Invoke();
     }
 
-    private void DrawCircle()
+    private void DrawOutline()
     {
         lineRenderer.positionCount = circleSteps;
-        lineRenderer.startWidth = lineWidth;
+        lineRenderer.startWidth = GlobalConstants.clearingOutlineWidth;
 
-        for (int j = 0; j < circleSteps; j++)
+        Vector3[] vertices = new Vector3[circleSteps + 1];
+        int[] triangles = new int[3 * circleSteps];
+
+        vertices[0] = Vector3.zero;
+
+        for (int i = 0; i < circleSteps; i++)
         {
-            double currentAngle = (2 * Math.PI) * (j / (float)circleSteps);
-            float x = (float) (clearingRadius * Math.Cos(currentAngle));
-            float y = (float) (clearingRadius * Math.Sin(currentAngle));
+            double currentAngle = (2 * Math.PI) * (i / (float)circleSteps);
+            float x = (float)(GlobalConstants.clearingRadius * Math.Cos(currentAngle));
+            float y = (float) (GlobalConstants.clearingRadius * Math.Sin(currentAngle));
                 
-            lineRenderer.SetPosition(j, new Vector3(x,y,0));
+            lineRenderer.SetPosition(i, new Vector3(x,y,0));
+            vertices[i + 1] = new Vector3(x, y, 0);
+            triangles[3 * i] = 0;
+            triangles[3 * i + 1] = (i + 1) % circleSteps + 1;
+            triangles[3 * i + 2] = i + 1;
         }
+        
+        Mesh mesh = meshFilter.mesh;
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
     }
 
     public void SetClearingName(string name)

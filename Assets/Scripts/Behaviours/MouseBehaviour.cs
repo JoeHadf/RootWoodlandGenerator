@@ -74,6 +74,9 @@ public class MouseBehaviour : MonoBehaviour
                     case EditMode.Modify:
                         ModifyMode(hit, doubleClick);
                         break;
+                    case EditMode.EditRiver:
+                        EditRiverMode(hit);
+                        break;
                 }
             }
         }
@@ -166,6 +169,15 @@ public class MouseBehaviour : MonoBehaviour
                 clickStart = mouseWorldPosition;
                 clearingStart = clearing.GetPosition();
             }
+        }
+    }
+
+    private void EditRiverMode(RaycastHit2D hit)
+    {
+        if (hit.collider != null && hit.collider.CompareTag("Clearing"))
+        {
+            Clearing clearing = hit.collider.gameObject.GetComponent<Clearing>();
+            worldState.river.AddClearingToRiver(clearing);
         }
     }
 }

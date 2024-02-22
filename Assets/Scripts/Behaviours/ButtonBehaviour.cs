@@ -43,6 +43,10 @@ public class ButtonBehaviour : MonoBehaviour
     public bool changingFaction { get; private set; }
     
     public bool loadingWoodland { get; private set; }
+    
+    public bool savingWoodland { get; private set; }
+
+    private EditMode storedEditMode = EditMode.Modify;
 
     public void Init(WorldState worldState)
     {
@@ -52,6 +56,7 @@ public class ButtonBehaviour : MonoBehaviour
         changingDenizen = false;
         changingFaction = false;
         loadingWoodland = false;
+        savingWoodland = false;
     }
 
     private void Update()
@@ -74,12 +79,12 @@ public class ButtonBehaviour : MonoBehaviour
 
     public bool IsDoingAction()
     {
-        return changingName || changingDenizen || changingFaction || loadingWoodland;
+        return changingName || changingDenizen || changingFaction || loadingWoodland || savingWoodland;
     }
 
     public void NextEditMode()
     {
-        if (!IsDoingAction())
+        if (!IsDoingAction() && worldState.editMode != EditMode.EditRiver)
         {
             switch (worldState.editMode)
             {
@@ -98,14 +103,35 @@ public class ButtonBehaviour : MonoBehaviour
 
     public void OpenScrollList()
     {
-        fileScrollListObject.SetActive(true);
-        List<string> savedWoodlands = FileHelper.GetAllSavedWoodlands();
-        fileScrollList.StartScrollList(savedWoodlands);
+        if (worldState.editMode != EditMode.EditRiver)
+        {
+            fileScrollListObject.SetActive(true);
+            List<string> savedWoodlands = FileHelper.GetAllSavedWoodlands();
+            fileScrollList.StartScrollList(savedWoodlands);
+
+            loadingWoodland = true;
+        }
+    }
+
+    public void CloseScrollList()
+    {
+        fileScrollListObject.SetActive(false);
+        loadingWoodland = false;
     }
 
     public void OpenSaveMenu()
     {
-        fileSaveMenuObject.SetActive(true);
+        if (worldState.editMode != EditMode.EditRiver)
+        {
+            fileSaveMenuObject.SetActive(true);
+            savingWoodland = true;
+        }
+    }
+    
+    public void CloseSaveMenu()
+    {
+        fileSaveMenuObject.SetActive(false);
+        savingWoodland = false;
     }
 
     public void StartModifyingClearing(Clearing clearing)
@@ -187,6 +213,20 @@ public class ButtonBehaviour : MonoBehaviour
         changingFaction = false;
         factionMenuObject.SetActive(false);
         endModifyModeButton.SetActive(false);
+    }
+
+    public void ToggleEditRiver()
+    {
+        if (worldState.editMode != EditMode.EditRiver)
+        {
+            worldState.river.ClearRiver();
+            storedEditMode = worldState.editMode;
+            worldState.ChangeEditMode(EditMode.EditRiver);
+        }
+        else
+        {
+            worldState.ChangeEditMode(storedEditMode);
+        }
     }
 
     public void ToggleHasBuilding(bool toggleState)

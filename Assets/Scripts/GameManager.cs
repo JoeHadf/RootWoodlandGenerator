@@ -11,8 +11,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private FileScrollList fileScrollList;
     [SerializeField] private FileSaveMenu fileSaveMenu;
 
+    [SerializeField] private River river;
+
     private MapGenerator mapGenerator;
     private ClearingInfoGenerator clearingInfoGenerator;
+    private RiverGenerator riverGenerator;
     private FactionGenerator factionGenerator;
     private FileGenerator fileGenerator;
 
@@ -20,10 +23,11 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        worldState = new WorldState(clearing, path);
+        worldState = new WorldState(clearing, path, river);
         
         mapGenerator = new MapGenerator(worldState);
         clearingInfoGenerator = new ClearingInfoGenerator(worldState);
+        riverGenerator = new RiverGenerator(worldState);
         factionGenerator = new FactionGenerator(worldState);
         fileGenerator = new FileGenerator(worldState);
         
@@ -35,8 +39,19 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
-        List<string> savedWoodlands = FileHelper.GetAllSavedWoodlands();
-        fileScrollList.StartScrollList(savedWoodlands);
+        /*
+        fileGenerator.ReadFileWithName("littleWoodland");
+
+        List<Clearing> predefinedRiver = new List<Clearing>()
+            { worldState.clearingsByID[2], worldState.clearingsByID[5], worldState.clearingsByID[4] };
+        worldState.riverClearings = predefinedRiver;
+        UpdateRiver();
+
+        for (int i = 0; i < predefinedRiver.Count; i++)
+        {
+            predefinedRiver[i].OnClearingPositionChanged += UpdateRiver;
+        }
+        */
     }
 
     void Update()
@@ -45,6 +60,7 @@ public class GameManager : MonoBehaviour
         {
             worldState.DeleteAllClearings();
             mapGenerator.GenerateClearings();
+            riverGenerator.GenerateRiver();
             mapGenerator.GeneratePaths();
             clearingInfoGenerator.GenerateDenizens();
             clearingInfoGenerator.GenerateClearingNames();
