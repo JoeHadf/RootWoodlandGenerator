@@ -8,7 +8,7 @@ public static class BezierSplineHelper
 
     public static List<Vector3> GetRiverSpline(List<Clearing> clearings)
     {
-        if (clearings.Count >= 2)
+        if (clearings.Count >= 1)
         {
             Vector3[] clearingCentres = new Vector3[clearings.Count + 2];
 

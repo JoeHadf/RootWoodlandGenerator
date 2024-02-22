@@ -40,6 +40,26 @@ public class River : MonoBehaviour
             }
         }
     }
+
+    public void ClearRiver()
+    {
+        int clearingCount = riverClearings.Count;
+
+        for (int i = 0; i < clearingCount; i++)
+        {
+            RemoveClearingFromRiver(riverClearings[^1]);
+        }
+    }
+
+    public void AddClearingToRiver(Clearing clearing)
+    {
+        if (!riverClearings.Contains(clearing))
+        {
+            riverClearings.Add(clearing);
+            clearing.OnClearingPositionChanged += UpdateRiver;
+            UpdateRiver();
+        }
+    }
     
     private void UpdateRiver()
     {

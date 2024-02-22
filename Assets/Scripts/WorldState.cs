@@ -220,5 +220,6 @@ public enum EditMode
 {
     Modify,
     Create,
-    Destroy
+    Destroy,
+    EditRiver,
 }
