@@ -115,6 +115,13 @@ public class WorldState
             adjacentClearingsByID[clearingID] = new HashSet<int>();
         }
     }
+
+    public bool TryGetClearingWithID(int clearingID, out Clearing clearing)
+    {
+        bool clearingExists = clearingsByID.TryGetValue(clearingID, out Clearing foundClearing);
+        clearing = foundClearing;
+        return clearingExists;
+    }
     
     private int GetID()
     {

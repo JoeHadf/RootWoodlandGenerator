@@ -56,28 +56,42 @@ public class FileGenerator
             riverClearingIDs[i] = currentClearingIDToSaveID[river[i].clearingID];
         }
 
+        bool includeClearings = attributeLines.Count > 0;
+        bool includePaths = pathLines.Length > 0;
+        bool includeRiver = riverClearingIDs.Length > 0;
+
         string myWoodlandsPath = FileHelper.GetMyWoodlandsFolderPath();
 
         using (StreamWriter file = new StreamWriter(System.IO.Path.Combine(myWoodlandsPath, fileName + ".root")))
         {
-            file.WriteLine(clearings.Count);
-            for (int i = 0; i < attributeLines.Count; i++)
+            if (includeClearings)
             {
-                file.WriteLine(attributeLines[i].GetAttributeLine());
+                file.WriteLine((int)FileSectionType.Clearings);
+                file.WriteLine(clearings.Count);
+                for (int i = 0; i < attributeLines.Count; i++)
+                {
+                    file.WriteLine(attributeLines[i].GetAttributeLine());
+                }
             }
-            
-            file.WriteLine("");
 
-            for (int i = 0; i < pathLines.Length; i++)
+            if (includePaths)
             {
-                file.WriteLine(pathLines[i].GetPathLine());
+                file.WriteLine("");
+                file.WriteLine((int)FileSectionType.Paths);
+                for (int i = 0; i < pathLines.Length; i++)
+                {
+                    file.WriteLine(pathLines[i].GetPathLine());
+                }
             }
-            
-            file.WriteLine("");
 
-            for (int i = 0; i < riverClearingIDs.Length; i++)
+            if (includeRiver)
             {
-                file.WriteLine(riverClearingIDs[i]);
+                file.WriteLine("");
+                file.WriteLine((int)FileSectionType.River);
+                for (int i = 0; i < riverClearingIDs.Length; i++)
+                {
+                    file.WriteLine(riverClearingIDs[i]);
+                }
             }
         }
     }
@@ -99,48 +113,92 @@ public class FileGenerator
         
         string[] splitFile = file.Split("\r\n\r\n");
 
-        if (splitFile.Length == 3)
+        Dictionary<int, int> indexToClearingID = new Dictionary<int, int>();
+
+        for (int i = 0; i < splitFile.Length; i++)
         {
-            string clearingFile = splitFile[0];
-            string pathFile = splitFile[1];
-            string riverFile = splitFile[2];
+            string[] sectionLines = splitFile[i].Split("\r\n");
 
-            string[] stringClearingLines = clearingFile.Split("\r\n");
-            string[] stringPathLines = pathFile.Split("\r\n");
-            string[] stringRiverLines = riverFile.Split("\r\n");
-
-            Dictionary<int, int> indexToClearingID = new Dictionary<int, int>(stringClearingLines.Length);
-
-            int clearingCount = Int32.Parse(stringClearingLines[0]);
-
-            Clearing[] clearings = new Clearing[clearingCount];
-
-            for (int i = 0; i < clearings.Length; i++)
+            if (sectionLines.Length > 1 && Int32.TryParse(sectionLines[0], out int sectionID))
             {
-                clearings[i] = worldState.GenerateClearing(Vector3.zero);
-            }
-
-            for (int i = 1; i < stringClearingLines.Length; i++)
-            {
-                if (AttributeLine.TryReadAttributeLine(stringClearingLines[i], out AttributeLine attributeLine))
+                FileSectionType fileSectionType = (FileSectionType)sectionID;
+                switch (fileSectionType)
                 {
-                    attributeLine.ApplyAttributeToClearing(clearings[attributeLine.clearingID]);
+                    case FileSectionType.Clearings:
+                        indexToClearingID = ReadClearingsSection(sectionLines);
+                        break;
+                    case FileSectionType.Paths:
+                        ReadPathsSection(sectionLines, indexToClearingID);
+                        break;
+                    case FileSectionType.River:
+                        ReadRiverSection(sectionLines, indexToClearingID);
+                        break;
                 }
             }
-            
-            for (int i = 0; i < stringPathLines.Length; i++)
+        }
+    }
+    
+    private Dictionary<int,int> ReadClearingsSection(string[] clearingLines)
+    {
+        int clearingCount = Int32.Parse(clearingLines[1]);
+
+        Clearing[] clearings = new Clearing[clearingCount];
+        Dictionary<int,int> indexToClearingID = new Dictionary<int,int>();
+
+        for (int i = 0; i < clearings.Length; i++)
+        {
+            Clearing newClearing = worldState.GenerateClearing(Vector3.zero);
+            clearings[i] = newClearing;
+            indexToClearingID.Add(i, newClearing.clearingID);
+        }
+
+        for (int i = 2; i < clearingLines.Length; i++)
+        {
+            if (AttributeLine.TryReadAttributeLine(clearingLines[i], out AttributeLine attributeLine))
             {
-                if (PathLine.TryReadAsPathLine(stringPathLines[i], out PathLine pathLine))
+                bool hasFoundClearingID = indexToClearingID.TryGetValue(attributeLine.clearingID, out int clearingID);
+                if(hasFoundClearingID && worldState.TryGetClearingWithID(clearingID, out Clearing clearing))
                 {
-                    worldState.GeneratePath(clearings[pathLine.startClearingID], clearings[pathLine.endClearingID]);
+                    attributeLine.ApplyAttributeToClearing(clearing);
                 }
             }
+        }
 
-            for (int i = 0; i < stringRiverLines.Length; i++)
+        return indexToClearingID;
+    }
+    
+    private void ReadPathsSection(string[] pathLines, Dictionary<int, int> indexToClearingID)
+    {
+        for (int i = 1; i < pathLines.Length; i++)
+        {
+            if (PathLine.TryReadAsPathLine(pathLines[i], out PathLine pathLine))
             {
-                if (Int32.TryParse(stringRiverLines[i], out int riverClearingID))
+                bool hasFoundStartID = indexToClearingID.TryGetValue(pathLine.startClearingID, out int startID);
+                bool hasFoundEndID = indexToClearingID.TryGetValue(pathLine.endClearingID, out int endID);
+
+                if (hasFoundStartID && hasFoundEndID)
                 {
-                    worldState.river.AddClearingToRiver(clearings[riverClearingID]);
+                    bool hasFoundStartClearing = worldState.TryGetClearingWithID(startID, out Clearing startClearing);
+                    bool hasFoundEndClearing = worldState.TryGetClearingWithID(endID, out Clearing endClearing);
+                    if (hasFoundStartClearing && hasFoundEndClearing)
+                    {
+                        worldState.GeneratePath(startClearing, endClearing);
+                    }
+                }
+            }
+        }
+    }
+
+    private void ReadRiverSection(string[] riverLines, Dictionary<int, int> indexToClearingID)
+    {
+        for (int i = 1; i < riverLines.Length; i++)
+        {
+            if (Int32.TryParse(riverLines[i], out int riverClearingIndex))
+            {
+                bool hasFoundClearingID = indexToClearingID.TryGetValue(riverClearingIndex, out int riverClearingID);
+                if (hasFoundClearingID && worldState.TryGetClearingWithID(riverClearingID, out Clearing clearing))
+                {
+                    worldState.river.AddClearingToRiver(clearing);
                 }
             }
         }
@@ -508,5 +566,12 @@ public class FileGenerator
         FactionControl = 3,
         HasBuilding = 4,
         FactionPresence = 5,
+    }
+
+    private enum FileSectionType
+    {
+        Clearings = 0,
+        Paths = 1,
+        River = 2
     }
 }
