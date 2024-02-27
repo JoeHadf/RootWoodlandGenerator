@@ -12,52 +12,76 @@ public class FileGenerator
     {
         this.worldState = worldState;
     }
-
+    
     public void GenerateFile(string fileName)
     {
         List<Clearing> clearings = worldState.clearings;
-        Dictionary<int, int> clearingIDToIndex = new Dictionary<int, int>(clearings.Count);
-        Line[] clearingLines = new Line[clearings.Count];
-        
+
+        List<AttributeLine> attributeLines = new List<AttributeLine>(clearings.Count * 6);
+        Dictionary<int, int> currentClearingIDToSaveID = new Dictionary<int, int>(clearings.Count);
+
         for (int i = 0; i < clearings.Count; i++)
         {
             Clearing currentClearing = clearings[i];
-            ClearingLine currentLine = new ClearingLine(currentClearing.clearingName, currentClearing.GetPosition(), currentClearing.majorDenizen
-                ,currentClearing.clearingControl, currentClearing.hasBuilding, currentClearing.hasSympathy);
-            clearingIDToIndex.Add(currentClearing.clearingID, i);
-            clearingLines[i] = currentLine;
+            
+            currentClearingIDToSaveID.Add(currentClearing.clearingID, i);
+            
+            attributeLines.Add(new NameAttribute(i, currentClearing.clearingName));
+            attributeLines.Add(new PositionAttribute(i, currentClearing.GetPosition()));
+            attributeLines.Add(new DenizenAttribute(i, currentClearing.majorDenizen));
+            attributeLines.Add(new FactionControlAttribute(i, currentClearing.clearingControl));
+            attributeLines.Add(new HasBuildingAttribute(i, currentClearing.hasBuilding));
+            if (currentClearing.hasSympathy)
+            {
+                attributeLines.Add(new FactionPresenceAttribute(i, FactionType.WoodlandAlliance));
+            }
         }
 
         List<Path> paths = worldState.paths;
-        Line[] pathLines = new Line[paths.Count];
+        PathLine[] pathLines = new PathLine[paths.Count];
 
         for (int i = 0; i < paths.Count; i++)
         {
             Path currentPath = paths[i];
-            PathID currentPathID = currentPath.pathID;
-            PathLine currentLine = new PathLine(clearingIDToIndex[currentPathID.startID],
-                clearingIDToIndex[currentPathID.endID]);
-            pathLines[i] = currentLine;
+            PathID pathID = currentPath.pathID;
+            
+            pathLines[i] = new PathLine(currentClearingIDToSaveID[pathID.startID], currentClearingIDToSaveID[pathID.endID]);
+        }
+
+        List<Clearing> river = worldState.river.GetRiverClearings();
+        int[] riverClearingIDs = new int[river.Count];
+
+        for (int i = 0; i < river.Count; i++)
+        {
+            riverClearingIDs[i] = currentClearingIDToSaveID[river[i].clearingID];
         }
 
         string myWoodlandsPath = FileHelper.GetMyWoodlandsFolderPath();
 
         using (StreamWriter file = new StreamWriter(System.IO.Path.Combine(myWoodlandsPath, fileName + ".root")))
         {
-            for (int i = 0; i < clearingLines.Length; i++)
+            file.WriteLine(clearings.Count);
+            for (int i = 0; i < attributeLines.Count; i++)
             {
-                file.WriteLine(clearingLines[i].GetLineString());
+                file.WriteLine(attributeLines[i].GetAttributeLine());
             }
             
             file.WriteLine("");
 
             for (int i = 0; i < pathLines.Length; i++)
             {
-                file.WriteLine(pathLines[i].GetLineString());
+                file.WriteLine(pathLines[i].GetPathLine());
+            }
+            
+            file.WriteLine("");
+
+            for (int i = 0; i < riverClearingIDs.Length; i++)
+            {
+                file.WriteLine(riverClearingIDs[i]);
             }
         }
     }
-
+    
     public void ReadFileWithName(string name)
     {
         string myWoodlandsPath = FileHelper.GetMyWoodlandsFolderPath();
@@ -65,221 +89,424 @@ public class FileGenerator
 
         if (File.Exists(filePath))
         {
-            worldState.DeleteAllClearings();
             ReadFile(File.ReadAllText(filePath));
         }
     }
-
+    
     public void ReadFile(string file)
     {
+        worldState.DeleteAllClearings();
+        
         string[] splitFile = file.Split("\r\n\r\n");
 
-        if (splitFile.Length == 2)
+        if (splitFile.Length == 3)
         {
             string clearingFile = splitFile[0];
             string pathFile = splitFile[1];
+            string riverFile = splitFile[2];
 
             string[] stringClearingLines = clearingFile.Split("\r\n");
             string[] stringPathLines = pathFile.Split("\r\n");
+            string[] stringRiverLines = riverFile.Split("\r\n");
 
             Dictionary<int, int> indexToClearingID = new Dictionary<int, int>(stringClearingLines.Length);
 
-            for (int i = 0; i < stringClearingLines.Length; i++)
+            int clearingCount = Int32.Parse(stringClearingLines[0]);
+
+            Clearing[] clearings = new Clearing[clearingCount];
+
+            for (int i = 0; i < clearings.Length; i++)
             {
-                if (TryReadAsClearingLine(stringClearingLines[i], out ClearingLine clearingLine))
+                clearings[i] = worldState.GenerateClearing(Vector3.zero);
+            }
+
+            for (int i = 1; i < stringClearingLines.Length; i++)
+            {
+                if (AttributeLine.TryReadAttributeLine(stringClearingLines[i], out AttributeLine attributeLine))
                 {
-                    Clearing currentClearing = worldState.GenerateClearing(new Vector3(clearingLine.posX, clearingLine.posY, 0));
-                    
-                    currentClearing.SetClearingName(clearingLine.name);
-                    currentClearing.SetMajorDenizen((DenizenType)clearingLine.denizenID);
-                    currentClearing.SetClearingControl((FactionType)clearingLine.factionID);
-                    currentClearing.SetHasBuilding(Convert.ToBoolean(clearingLine.hasBuilding));
-                    currentClearing.SetHasSympathy(Convert.ToBoolean(clearingLine.hasWoodlandAlliancePresence));
-                    
-                    indexToClearingID.Add(i, currentClearing.clearingID);
+                    attributeLine.ApplyAttributeToClearing(clearings[attributeLine.clearingID]);
                 }
             }
             
             for (int i = 0; i < stringPathLines.Length; i++)
             {
-                if (TryReadAsPathLine(stringPathLines[i], out PathLine pathLine))
+                if (PathLine.TryReadAsPathLine(stringPathLines[i], out PathLine pathLine))
                 {
-                    if (indexToClearingID.TryGetValue(pathLine.startClearing, out int startClearingID) &&
-                        indexToClearingID.TryGetValue(pathLine.endClearing, out int endClearingID))
-                    {
-                        worldState.GeneratePath(startClearingID, endClearingID);
-                    }
+                    worldState.GeneratePath(clearings[pathLine.startClearingID], clearings[pathLine.endClearingID]);
+                }
+            }
+
+            for (int i = 0; i < stringRiverLines.Length; i++)
+            {
+                if (Int32.TryParse(stringRiverLines[i], out int riverClearingID))
+                {
+                    worldState.river.AddClearingToRiver(clearings[riverClearingID]);
                 }
             }
         }
     }
 
-    private bool TryReadAsClearingLine(string stringClearingLine, out ClearingLine clearingLine)
+    //Any Implementation of AttributeLine must implement a static AttributeType variable and a constructor that takes the splitLine.
+    private abstract class AttributeLine
     {
-        bool failedRead = false;
+        public int clearingID;
+        public AttributeType attributeType;
+
+        protected AttributeLine(int clearingID, AttributeType attributeType)
+        {
+            this.clearingID = clearingID;
+            this.attributeType = attributeType;
+        }
+
+        public abstract string GetAttributeLine();
+
+        public abstract void ApplyAttributeToClearing(Clearing clearing);
         
-        string[] splitLine = stringClearingLine.Split(",");
-
-        if (splitLine.Length == 7)
+        public static bool TryReadAttributeLine(string line, out AttributeLine attributeLine)
         {
-            string name = splitLine[0];
+            string[] splitLine = line.Split(",");
             
-            if (!float.TryParse(splitLine[1], out float posX))
+            attributeLine = null;
+            bool hasReadLine = false;
+
+            if (splitLine.Length > 2 && Int32.TryParse(splitLine[1], out int attributeID))
             {
-                failedRead = true;
+                AttributeType attribute = (AttributeType)attributeID;
+                
+                switch (attribute)
+                {
+                    case NameAttribute.attribute:
+                        attributeLine = new NameAttribute();
+                        hasReadLine = attributeLine.TryReadIntoLine(splitLine);
+                        break;
+                    case PositionAttribute.attribute:
+                        attributeLine = new PositionAttribute();
+                        hasReadLine = attributeLine.TryReadIntoLine(splitLine);
+                        break;
+                    case DenizenAttribute.attribute:
+                        attributeLine = new DenizenAttribute();
+                        hasReadLine = attributeLine.TryReadIntoLine(splitLine);
+                        break;
+                    case FactionControlAttribute.attribute:
+                        attributeLine = new FactionControlAttribute();
+                        hasReadLine = attributeLine.TryReadIntoLine(splitLine);
+                        break;
+                    case HasBuildingAttribute.attribute:
+                        attributeLine = new HasBuildingAttribute();
+                        hasReadLine = attributeLine.TryReadIntoLine(splitLine);
+                        break;
+                    case FactionPresenceAttribute.attribute:
+                        attributeLine = new FactionPresenceAttribute();
+                        hasReadLine = attributeLine.TryReadIntoLine(splitLine);
+                        break;
+                }
             }
 
-            if (!float.TryParse(splitLine[2], out float posY))
-            {
-                failedRead = true;
-            }
-            
-            if (!Int32.TryParse(splitLine[3], out int denizenID) || !Enum.IsDefined(typeof(DenizenType), denizenID))
-            {
-                failedRead = true;
-            }
-
-            if (!Int32.TryParse(splitLine[4], out int factionID) || !Enum.IsDefined(typeof(FactionType), factionID))
-            {
-                failedRead = true;
-            }
-
-            if (!Int32.TryParse(splitLine[5], out int hasBuilding))
-            {
-                failedRead = true;
-            }
-            
-            if (!Int32.TryParse(splitLine[6], out int hasWoodlandAlliancePresence))
-            {
-                failedRead = true;
-            }
-
-            if (!failedRead)
-            {
-                clearingLine = new ClearingLine(name, posX, posY, denizenID, factionID, hasBuilding, hasWoodlandAlliancePresence);
-            }
-            else
-            {
-                clearingLine = new ClearingLine();
-            }
-
-        }
-        else
-        {
-            failedRead = true;
-            clearingLine = new ClearingLine();
-        }
-
-        return !failedRead;
-    }
-    
-    private bool TryReadAsPathLine(string stringPathLine, out PathLine pathLine)
-    {
-        bool failedRead = false;
+            return hasReadLine;
+        } 
         
-        string[] splitLine = stringPathLine.Split(",");
-
-        if (splitLine.Length == 2)
+        internal string GetAttributeLinePrefix()
         {
-            if (!Int32.TryParse(splitLine[0], out int startClearing))
-            {
-                failedRead = true;
-            }
-            
-            if (!Int32.TryParse(splitLine[1], out int endClearing))
-            {
-                failedRead = true;
-            }
-            
-            if (!failedRead)
-            {
-                pathLine = new PathLine(startClearing, endClearing);
-            }
-            else
-            {
-                pathLine = new PathLine(0,0);
-            }
-
-        }
-        else
-        {
-            failedRead = true;
-            pathLine = new PathLine(0,0);
+            return $"{clearingID},{(int)attributeType},";
         }
 
-        return !failedRead;
-    }
-
-    private abstract class Line
-    {
-        public abstract string GetLineString();
-    }
-
-    private class PathLine : Line
-    {
-        public int startClearing { get; private set; }
-        public int endClearing { get; private set; }
-
-        public PathLine(int startClearing, int endClearing)
+        internal bool EnsureCapacity(string[] line, int capacity)
         {
-            this.startClearing = startClearing;
-            this.endClearing = endClearing;
+            return line.Length == 2 + capacity;
+        }
+
+        private bool TryReadIntoLine(string[] line)
+        {
+            bool hasReadLine = false;
+
+            if (TryReadClearingID(line))
+            {
+                hasReadLine = TryReadAttributeValues(line);
+            }
+
+            return hasReadLine;
         }
         
-        public override string GetLineString()
+        private bool TryReadClearingID(string[] line)
         {
-            return $"{startClearing},{endClearing}";
-        }
-    }
-    
-    private class ClearingLine : Line
-    {
-        public string name { get; private set; }
-        public float posX { get; private set; }
-        public float posY { get; private set; }
-        public int denizenID { get; private set; }
-        public int factionID { get; private set; }
-        public int hasBuilding { get; private set; }
-        public int hasWoodlandAlliancePresence { get; private set; }
+            if (line.Length >= 1 && Int32.TryParse(line[0], out int id))
+            {
+                clearingID = id;
+                return true;
+            }
 
-        public ClearingLine(string name, Vector3 position, DenizenType denizen, FactionType faction,bool hasBuilding,
-            bool hasWoodlandAlliancePresence)
+            return false;
+        }
+
+        protected abstract bool TryReadAttributeValues(string[] line);
+    }
+
+    private class NameAttribute : AttributeLine
+    {
+        private string name;
+        public const AttributeType attribute = AttributeType.Name;
+
+        public NameAttribute(int clearingID, string name) : base(clearingID, attribute)
         {
             this.name = name;
-            this.posX = position.x;
-            this.posY = position.y;
-            this.denizenID = (int)denizen;
-            this.factionID = (int)faction;
-            this.hasBuilding = (hasBuilding) ? 1 : 0;
-            this.hasWoodlandAlliancePresence = (hasWoodlandAlliancePresence) ? 1 : 0;
-        }
-        
-        public ClearingLine(string name, float posX, float posY, int denizen, int faction, int hasBuilding,
-            int hasWoodlandAlliancePresence)
-        {
-            this.name = name;
-            this.posX = posX;
-            this.posY = posY;
-            this.denizenID = denizen;
-            this.factionID = faction;
-            this.hasBuilding = hasBuilding;
-            this.hasWoodlandAlliancePresence = hasWoodlandAlliancePresence;
         }
 
-        public ClearingLine()
+        public NameAttribute() : base(-1, attribute)
         {
             this.name = "";
-            this.posX = 0;
-            this.posY = 0;
-            this.denizenID = 0;
-            this.factionID = 0;
-            this.hasBuilding = 0;
-            this.hasWoodlandAlliancePresence = 0;
         }
 
-        public override string GetLineString()
+        public override string GetAttributeLine()
         {
-            return $"{name},{posX},{posY},{denizenID},{factionID},{hasBuilding},{hasWoodlandAlliancePresence}";
+            return GetAttributeLinePrefix() + $"{name}";
         }
+
+        public override void ApplyAttributeToClearing(Clearing clearing)
+        {
+            clearing.SetClearingName(name);
+        }
+
+        protected override bool TryReadAttributeValues(string[] line)
+        {
+            if (EnsureCapacity(line, 1))
+            {
+                this.name = line[2];
+                return true;
+            }
+
+            return false;
+        }
+    }
+    
+    private class PositionAttribute : AttributeLine
+    {
+        private Vector3 position;
+        public const AttributeType attribute = AttributeType.Position;
+        
+        public PositionAttribute(int clearingID, Vector3 position) : base(clearingID, attribute)
+        {
+            this.position = position;
+        }
+
+        public PositionAttribute() : base(-1, attribute)
+        {
+            this.position = Vector3.zero;
+        }
+
+        public override string GetAttributeLine()
+        {
+            return GetAttributeLinePrefix() + $"{position.x},{position.y}";
+        }
+        
+        public override void ApplyAttributeToClearing(Clearing clearing)
+        {
+            clearing.SetPosition(position);
+        }
+        
+        protected override bool TryReadAttributeValues(string[] line)
+        {
+            if (EnsureCapacity(line, 2) && float.TryParse(line[2], out float posX) && float.TryParse(line[3], out float posY))
+            {
+                this.position = new Vector3(posX, posY, 0);
+                return true;
+            }
+
+            return false;
+        }
+    }
+    
+    private class DenizenAttribute : AttributeLine
+    {
+        private DenizenType denizen;
+        public const AttributeType attribute = AttributeType.Denizen;
+        
+        public DenizenAttribute(int clearingID, DenizenType denizen) : base(clearingID, attribute)
+        {
+            this.denizen = denizen;
+        }
+
+        public DenizenAttribute() : base(-1, attribute)
+        {
+            this.denizen = DenizenType.Fox;
+        }
+
+        public override string GetAttributeLine()
+        {
+            return GetAttributeLinePrefix() + $"{(int)denizen}";
+        }
+        
+        public override void ApplyAttributeToClearing(Clearing clearing)
+        {
+            clearing.SetMajorDenizen(denizen);
+        }
+        
+        protected override bool TryReadAttributeValues(string[] line)
+        {
+            if (EnsureCapacity(line, 1) && Int32.TryParse(line[2], out int denizenID))
+            {
+                this.denizen = (DenizenType)denizenID;
+                return true;
+            }
+
+            return false;
+        }
+    }
+    
+    private class FactionControlAttribute : AttributeLine
+    {
+        private FactionType faction;
+        public const AttributeType attribute = AttributeType.FactionControl;
+        
+        public FactionControlAttribute(int clearingID, FactionType faction) : base(clearingID, attribute)
+        {
+            this.faction = faction;
+        }
+
+        public FactionControlAttribute() : base(-1, attribute)
+        {
+            this.faction = FactionType.Denizens;
+        }
+
+        public override string GetAttributeLine()
+        {
+            return GetAttributeLinePrefix() + $"{(int)faction}";
+        }
+        
+        public override void ApplyAttributeToClearing(Clearing clearing)
+        {
+            clearing.SetClearingControl(faction);
+        }
+        
+        protected override bool TryReadAttributeValues(string[] line)
+        {
+            if (EnsureCapacity(line, 1) && Int32.TryParse(line[2], out int factionID))
+            {
+                this.faction = (FactionType)factionID;
+                return true;
+            }
+
+            return false;
+        }
+    }
+    
+    private class HasBuildingAttribute : AttributeLine
+    {
+        private bool hasBuilding;
+        public const AttributeType attribute = AttributeType.HasBuilding;
+        
+        public HasBuildingAttribute(int clearingID, bool hasBuilding) : base(clearingID, attribute)
+        {
+            this.hasBuilding = hasBuilding;
+        }
+
+        public HasBuildingAttribute() : base(-1, attribute)
+        {
+            this.hasBuilding = false;
+        }
+
+        public override string GetAttributeLine()
+        {
+            int hasBuildingValue = (hasBuilding) ? 1 : 0;
+            return GetAttributeLinePrefix() + $"{hasBuildingValue}";
+        }
+        
+        public override void ApplyAttributeToClearing(Clearing clearing)
+        {
+            clearing.SetHasBuilding(hasBuilding);
+        }
+        
+        protected override bool TryReadAttributeValues(string[] line)
+        {
+            if (EnsureCapacity(line, 1) && Int32.TryParse(line[2], out int hasBuildingID))
+            {
+                this.hasBuilding = Convert.ToBoolean(hasBuildingID);
+                return true;
+            }
+
+            return false;
+        }
+    }
+    
+    private class FactionPresenceAttribute : AttributeLine
+    {
+        private FactionType faction;
+        public const AttributeType attribute = AttributeType.FactionPresence;
+        
+        public FactionPresenceAttribute(int clearingID, FactionType faction) : base(clearingID, attribute)
+        {
+            this.faction = faction;
+        }
+
+        public FactionPresenceAttribute() : base(-1, attribute)
+        {
+            this.faction = FactionType.Denizens;
+        }
+
+        public override string GetAttributeLine()
+        {
+            return GetAttributeLinePrefix() + $"{(int)faction}";
+        }
+        
+        public override void ApplyAttributeToClearing(Clearing clearing)
+        {
+            clearing.SetHasSympathy(faction == FactionType.WoodlandAlliance);
+        }
+        
+        protected override bool TryReadAttributeValues(string[] line)
+        {
+            if (EnsureCapacity(line, 1) && Int32.TryParse(line[2], out int factionID))
+            {
+                this.faction = (FactionType)factionID;
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    private struct PathLine
+    {
+        public int startClearingID { get; private set; }
+        public int endClearingID { get; private set; }
+
+        public PathLine(int startClearingID, int endClearingID)
+        {
+            this.startClearingID = startClearingID;
+            this.endClearingID = endClearingID;
+        }
+
+        public string GetPathLine()
+        {
+            return $"{startClearingID},{endClearingID}";
+        }
+
+        public static bool TryReadAsPathLine(string line, out PathLine pathLine)
+        {
+            pathLine = new PathLine(-1,-1);
+            bool hasReadLine = false;
+            
+            string[] splitLine = line.Split(",");
+
+            if (splitLine.Length == 2)
+            {
+                if (Int32.TryParse(splitLine[0], out int startID) && Int32.TryParse(splitLine[1], out int endID))
+                {
+                    pathLine = new PathLine(startID, endID);
+                    hasReadLine = true;
+                }
+            }
+
+            return hasReadLine;
+        }
+}
+    
+    private enum AttributeType
+    {
+        Name = 0,
+        Position = 1,
+        Denizen = 2,
+        FactionControl = 3,
+        HasBuilding = 4,
+        FactionPresence = 5,
     }
 }

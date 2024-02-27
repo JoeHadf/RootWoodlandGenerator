@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +10,6 @@ public class River : MonoBehaviour
 
     public void RegisterNewRiver(List<Clearing> newRiver)
     {
-        gameObject.SetActive(true);
         for (int i = 0; i < riverClearings.Count; i++)
         {
             riverClearings[i].OnClearingPositionChanged -= UpdateRiver;
@@ -61,18 +61,6 @@ public class River : MonoBehaviour
         }
     }
     
-    private void UpdateRiver()
-    {
-        List<Vector3> riverSpline = BezierSplineHelper.GetRiverSpline(riverClearings);
-
-        lineRenderer.positionCount = riverSpline.Count;
-
-        for (int i = 0; i < riverSpline.Count; i++)
-        {
-            lineRenderer.SetPosition(i, riverSpline[i]);
-        }
-    }
-
     public bool PathIsOnRiver(Clearing startClearing, Clearing endClearing)
     {
         for (int i = 0; i < riverClearings.Count; i++)
@@ -93,5 +81,22 @@ public class River : MonoBehaviour
         }
 
         return false;
+    }
+
+    public List<Clearing> GetRiverClearings()
+    {
+        return riverClearings;
+    }
+    
+    private void UpdateRiver()
+    {
+        List<Vector3> riverSpline = BezierSplineHelper.GetRiverSpline(riverClearings);
+
+        lineRenderer.positionCount = riverSpline.Count;
+
+        for (int i = 0; i < riverSpline.Count; i++)
+        {
+            lineRenderer.SetPosition(i, riverSpline[i]);
+        }
     }
 }
