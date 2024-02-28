@@ -1,6 +1,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -176,6 +178,146 @@ public class FactionGenerator
         }
     }
 
+    public void SetupLizardCult()
+    {
+        DenizenType downtroddenDenizen = (DenizenType)Random.Range(0, 3);
+
+        List<Clearing> clearings = worldState.clearings;
+        List<Clearing> downtroddenClearings = new List<Clearing>(clearings.Count);
+
+        for (int i = 0; i < clearings.Count; i++)
+        {
+            Clearing currentClearing = clearings[i];
+            if (currentClearing.majorDenizen == downtroddenDenizen)
+            {
+                downtroddenClearings.Add(currentClearing);
+            }
+        }
+
+        if (downtroddenClearings.Count > 0)
+        {
+            int firstClearingIndex = Random.Range(0, downtroddenClearings.Count);
+            //downtroddenClearings[firstClearingIndex].SetPresence(FactionType.LizardCult);
+            if (downtroddenClearings.Count >= 2)
+            {
+                int secondClearingIndex = Random.Range(0, downtroddenClearings.Count - 1);
+                if (secondClearingIndex >= firstClearingIndex)
+                {
+                    secondClearingIndex++;
+                }
+                //downtroddenClearings[secondClearingIndex].SetPresence(FactionType.LizardCult);
+            }
+        }
+        
+        Corner gardenCorner = ChooseRandomCorner();
+        Clearing gardenClearing = GetCornerClearing(gardenCorner);
+        
+        gardenClearing.SetClearingControl(FactionType.LizardCult);
+        gardenClearing.SetHasBuilding(true);
+    }
+
+    public void SetupRiverfolkCompany()
+    {
+        List<Clearing> clearings = worldState.clearings;
+        Dictionary<int, HashSet<int>> adjacentClearingsByID = worldState.adjacentClearingsByID;
+        List<Clearing> riverClearings = worldState.river.GetRiverClearings();
+        HashSet<int> riverClearingIDs = new HashSet<int>(riverClearings.Count);
+
+        for (int i = 0; i < riverClearings.Count; i++)
+        {
+            riverClearingIDs.Add(riverClearings[i].clearingID);
+        }
+
+        float valuableResourcesPercentage = 0.2f;
+        int[] clearingYeses = new int[clearings.Count];
+
+        for (int i = 0; i < clearings.Count; i++)
+        {
+            Clearing currentClearing = clearings[i];
+            int numberOfPaths = adjacentClearingsByID[currentClearing.clearingID].Count;
+
+            bool isRiverClearing = riverClearingIDs.Contains(currentClearing.clearingID);
+            bool threeOrMorePaths = numberOfPaths >= 3;
+            bool fourOrMorePaths = numberOfPaths >= 4;
+            bool hasValuableResources = Random.Range(0.0f, 1.0f) < valuableResourcesPercentage;
+
+            int yesCount = 0;
+            if (isRiverClearing) yesCount++;
+            if (threeOrMorePaths) yesCount++;
+            if (fourOrMorePaths) yesCount++;
+            if (hasValuableResources) yesCount++;
+
+            clearingYeses[i] = yesCount;
+        }
+        
+        Clearing[] orderedClearings = clearings.OrderByDescending(d => clearingYeses[clearings.IndexOf(d)]).ToArray();
+
+        int riverfolkClearingCount = Math.Min(4, orderedClearings.Length);
+        bool hasSetTradingPost = false;
+
+        for (int i = 0; i < riverfolkClearingCount; i++)
+        {
+            Clearing currentClearing = orderedClearings[i];
+            
+            if (!hasSetTradingPost && !currentClearing.hasBuilding)
+            {
+                hasSetTradingPost = true;
+                currentClearing.SetClearingControl(FactionType.RiverfolkCompany);
+                currentClearing.SetHasBuilding(true);
+            }
+            else
+            {
+                //currentClearing.SetPresence(FactionType.RiverfolkCompany);
+            }
+        }
+    }
+
+    public void SetupGrandDuchy()
+    {
+        Corner tunnelCorner = ChooseRandomCorner();
+        Clearing tunnelClearing = GetCornerClearing(tunnelCorner);
+        
+        tunnelClearing.SetClearingControl(FactionType.GrandDuchy);
+        tunnelClearing.SetHasBuilding(true);
+
+        Dictionary<int, Clearing> clearingsByID = worldState.clearingsByID;
+        HashSet<int> adjacentClearingIDs = worldState.adjacentClearingsByID[tunnelClearing.clearingID];
+
+        foreach (int adjacentClearingID in adjacentClearingIDs)
+        {
+            bool inControl = GrandDuchyIsInControl();
+            if (inControl)
+            {
+                Clearing adjacentClearing = clearingsByID[adjacentClearingID];
+                adjacentClearing.SetClearingControl(FactionType.GrandDuchy);
+                adjacentClearing.SetHasBuilding(false);
+            }
+        }
+        
+        List<Clearing> shuffledClearings = Shuffle<Clearing>(worldState.clearings);
+
+        for (int i = 0; i < shuffledClearings.Count; i++)
+        {
+            Clearing currentClearing = shuffledClearings[i];
+            if (currentClearing.clearingControl != FactionType.GrandDuchy)
+            {
+                //currentClearing.SetPresence(FactionType.GrandDuchy);
+                break;
+            }
+        }
+    }
+
+    public void SetupCorvidConspiracy()
+    {
+        List<Clearing> shuffledClearings = Shuffle<Clearing>(worldState.clearings);
+        int corvidClearingCount = Math.Min(4, shuffledClearings.Count);
+
+        for (int i = 0; i < corvidClearingCount; i++)
+        {
+            //shuffledClearings[i].SetPresence(FactionType.CorvidConspiracy);
+        }
+    }
+
     public void SetupDenizens()
     {
         List<Clearing> clearings = worldState.clearings;
@@ -307,6 +449,15 @@ public class FactionGenerator
         return hasSympathy;
     }
 
+    private bool GrandDuchyIsInControl()
+    {
+        int controlThreshold = 10;
+        int diceRoll = Roll2D6();
+        bool inControl = diceRoll >= controlThreshold;
+        return inControl;
+
+    }
+
     private bool DenizensAreInControl()
     {
         int diceRoll = Roll2D6();
@@ -427,6 +578,24 @@ public class FactionGenerator
         
         usedCorners.Add(corner);
         return corner;
+    }
+    
+    private List<T> Shuffle<T>(List<T> listToShuffle)
+    {
+        List<T> outputList = new List<T>(listToShuffle);
+        
+        for (int i = 0; i < outputList.Count; i++)
+        {
+            int nextElementIndex = Random.Range(0, outputList.Count - i);
+
+            T nextElement = outputList[nextElementIndex];
+            T swappedElement = outputList[^(i + 1)];
+
+            outputList[^(i + 1)] = nextElement;
+            outputList[nextElementIndex] = swappedElement;
+        }
+
+        return outputList;
     }
 }
 
