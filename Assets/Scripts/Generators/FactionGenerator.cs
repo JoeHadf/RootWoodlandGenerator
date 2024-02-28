@@ -167,11 +167,9 @@ public class FactionGenerator
             }
         }
 
-        if (makeAdjacentClearingsSympathetic)
+        if (makeAdjacentClearingsSympathetic && worldState.adjacentClearingsByID.TryGetValue(baseClearingID, out HashSet<int> adjacentClearingIDs))
         {
-            HashSet<int> adjacentClearings = worldState.adjacentClearingsByID[baseClearingID];
-
-            foreach (int adjacent in adjacentClearings)
+            foreach (int adjacent in adjacentClearingIDs)
             {
                 clearingsByID[adjacent].SetPresence(FactionType.WoodlandAlliance);
             }
@@ -234,7 +232,12 @@ public class FactionGenerator
         for (int i = 0; i < clearings.Count; i++)
         {
             Clearing currentClearing = clearings[i];
-            int numberOfPaths = adjacentClearingsByID[currentClearing.clearingID].Count;
+
+            int numberOfPaths = 0;
+            if (adjacentClearingsByID.TryGetValue(currentClearing.clearingID, out HashSet<int> adjacentClearingIDs))
+            {
+                numberOfPaths = adjacentClearingIDs.Count;
+            }
 
             bool isRiverClearing = riverClearingIDs.Contains(currentClearing.clearingID);
             bool threeOrMorePaths = numberOfPaths >= 3;
@@ -281,16 +284,18 @@ public class FactionGenerator
         tunnelClearing.SetHasBuilding(true);
 
         Dictionary<int, Clearing> clearingsByID = worldState.clearingsByID;
-        HashSet<int> adjacentClearingIDs = worldState.adjacentClearingsByID[tunnelClearing.clearingID];
 
-        foreach (int adjacentClearingID in adjacentClearingIDs)
+        if (worldState.adjacentClearingsByID.TryGetValue(tunnelClearing.clearingID, out HashSet<int> adjacentClearingIDs))
         {
-            bool inControl = GrandDuchyIsInControl();
-            if (inControl)
+            foreach (int adjacentClearingID in adjacentClearingIDs)
             {
-                Clearing adjacentClearing = clearingsByID[adjacentClearingID];
-                adjacentClearing.SetClearingControl(FactionType.GrandDuchy);
-                adjacentClearing.SetHasBuilding(false);
+                bool inControl = GrandDuchyIsInControl();
+                if (inControl)
+                {
+                    Clearing adjacentClearing = clearingsByID[adjacentClearingID];
+                    adjacentClearing.SetClearingControl(FactionType.GrandDuchy);
+                    adjacentClearing.SetHasBuilding(false);
+                }
             }
         }
         
