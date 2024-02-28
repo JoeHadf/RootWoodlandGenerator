@@ -141,7 +141,7 @@ public class FactionGenerator
             bool hasSympathy = HasWoodlandAllianceSympathy(currentClearing);
             if (hasSympathy)
             {
-                currentClearing.SetHasSympathy(true);
+                currentClearing.SetPresence(FactionType.WoodlandAlliance);
                 sympatheticClearingIDs.Add(currentClearing.clearingID);
             }
         }
@@ -173,7 +173,7 @@ public class FactionGenerator
 
             foreach (int adjacent in adjacentClearings)
             {
-                clearingsByID[adjacent].SetHasSympathy(true);
+                clearingsByID[adjacent].SetPresence(FactionType.WoodlandAlliance);
             }
         }
     }
@@ -197,7 +197,7 @@ public class FactionGenerator
         if (downtroddenClearings.Count > 0)
         {
             int firstClearingIndex = Random.Range(0, downtroddenClearings.Count);
-            //downtroddenClearings[firstClearingIndex].SetPresence(FactionType.LizardCult);
+            downtroddenClearings[firstClearingIndex].SetPresence(FactionType.LizardCult);
             if (downtroddenClearings.Count >= 2)
             {
                 int secondClearingIndex = Random.Range(0, downtroddenClearings.Count - 1);
@@ -205,7 +205,7 @@ public class FactionGenerator
                 {
                     secondClearingIndex++;
                 }
-                //downtroddenClearings[secondClearingIndex].SetPresence(FactionType.LizardCult);
+                downtroddenClearings[secondClearingIndex].SetPresence(FactionType.LizardCult);
             }
         }
         
@@ -267,7 +267,7 @@ public class FactionGenerator
             }
             else
             {
-                //currentClearing.SetPresence(FactionType.RiverfolkCompany);
+                currentClearing.SetPresence(FactionType.RiverfolkCompany);
             }
         }
     }
@@ -301,7 +301,7 @@ public class FactionGenerator
             Clearing currentClearing = shuffledClearings[i];
             if (currentClearing.clearingControl != FactionType.GrandDuchy)
             {
-                //currentClearing.SetPresence(FactionType.GrandDuchy);
+                currentClearing.SetPresence(FactionType.GrandDuchy);
                 break;
             }
         }
@@ -314,7 +314,7 @@ public class FactionGenerator
 
         for (int i = 0; i < corvidClearingCount; i++)
         {
-            //shuffledClearings[i].SetPresence(FactionType.CorvidConspiracy);
+            shuffledClearings[i].SetPresence(FactionType.CorvidConspiracy);
         }
     }
 

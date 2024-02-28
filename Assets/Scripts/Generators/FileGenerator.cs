@@ -31,9 +31,12 @@ public class FileGenerator
             attributeLines.Add(new DenizenAttribute(i, currentClearing.majorDenizen));
             attributeLines.Add(new FactionControlAttribute(i, currentClearing.clearingControl));
             attributeLines.Add(new HasBuildingAttribute(i, currentClearing.hasBuilding));
-            if (currentClearing.hasSympathy)
+
+            FactionType[] presentFactions = currentClearing.GetPresentFactions();
+
+            for (int j = 0; j < presentFactions.Length; j++)
             {
-                attributeLines.Add(new FactionPresenceAttribute(i, FactionType.WoodlandAlliance));
+                attributeLines.Add(new FactionPresenceAttribute(i, presentFactions[j]));
             }
         }
 
@@ -506,7 +509,7 @@ public class FileGenerator
         
         public override void ApplyAttributeToClearing(Clearing clearing)
         {
-            clearing.SetHasSympathy(faction == FactionType.WoodlandAlliance);
+            clearing.SetPresence(faction);
         }
         
         protected override bool TryReadAttributeValues(string[] line)

@@ -272,6 +272,10 @@ MonoBehaviour:
   marquisateSprite: {fileID: 21300000, guid: 2e36744e4a9f7a7458e1a3526abd73f5, type: 3}
   eyrieDynastiesSprite: {fileID: 21300000, guid: 27d711b5ae8c5b34d892d254d89725e4, type: 3}
   woodlandAllianceSprite: {fileID: 21300000, guid: 5ff3b12568125ee4a9bc4e3613f1f7e4, type: 3}
+  lizardCultSprite: {fileID: 21300000, guid: 32db18141dfdd36458ab56646f84dbf2, type: 3}
+  riverfolkCompanySprite: {fileID: 21300000, guid: 47dee20486bc20e498ffea4a1d7d8d11, type: 3}
+  grandDuchySprite: {fileID: 21300000, guid: 3172786098712184692302706fcdbe51, type: 3}
+  corvidConspiracySprite: {fileID: 21300000, guid: c320128a2bff59e49aa2d0cd46372b7c, type: 3}
 --- !u!1 &7363946087998934781
 GameObject:
   m_ObjectHideFlags: 0
@@ -373,6 +377,10 @@ MonoBehaviour:
   marquisateSprite: {fileID: 21300000, guid: eca4ad7d4cc057348b4d2730c69fbb11, type: 3}
   eyrieDynastiesSprite: {fileID: 21300000, guid: 8d6c482736c206a418601d5b4c6e1442, type: 3}
   woodlandAllianceSprite: {fileID: 21300000, guid: e7c94821c91d3a142986a365bdc3407d, type: 3}
+  lizardCultSprite: {fileID: 21300000, guid: 4dfae7ea751d6eb4ca09e9ee58f76956, type: 3}
+  riverfolkCompanySprite: {fileID: 21300000, guid: 1865daebd5e18a64a9840058712a2e16, type: 3}
+  grandDuchySprite: {fileID: 21300000, guid: 9b7f06c1a14a6f54b8c176c94e9c1618, type: 3}
+  corvidConspiracySprite: {fileID: 21300000, guid: b21447b757ca7c047bf69a8d204fe6e9, type: 3}
 --- !u!1 &7823068915315998982
 GameObject:
   m_ObjectHideFlags: 0
@@ -382,7 +390,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4222032861076390603}
-  - component: {fileID: 1469058524095003433}
+  - component: {fileID: 7457817685483931787}
   m_Layer: 0
   m_Name: Presence
   m_TagString: Untagged
@@ -405,58 +413,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1073814403575479489}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &1469058524095003433
-SpriteRenderer:
+--- !u!114 &7457817685483931787
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7823068915315998982}
   m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a984e111859c28f458748a2996880013, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
-  m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e61116178aeb1c4fb4596629480210d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  marquisateSprite: {fileID: 21300000, guid: eca4ad7d4cc057348b4d2730c69fbb11, type: 3}
+  eyrieDynastiesSprite: {fileID: 21300000, guid: 8d6c482736c206a418601d5b4c6e1442, type: 3}
+  woodlandAllianceSprite: {fileID: 21300000, guid: e7c94821c91d3a142986a365bdc3407d, type: 3}
+  lizardCultSprite: {fileID: 21300000, guid: 4dfae7ea751d6eb4ca09e9ee58f76956, type: 3}
+  riverfolkCompanySprite: {fileID: 21300000, guid: 1865daebd5e18a64a9840058712a2e16, type: 3}
+  grandDuchySprite: {fileID: 21300000, guid: 9b7f06c1a14a6f54b8c176c94e9c1618, type: 3}
+  corvidConspiracySprite: {fileID: 21300000, guid: b21447b757ca7c047bf69a8d204fe6e9, type: 3}
 --- !u!1 &7972312982235184085
 GameObject:
   m_ObjectHideFlags: 0
@@ -599,10 +574,9 @@ MonoBehaviour:
   lineRenderer: {fileID: -4197675140966839740}
   meshFilter: {fileID: 6356363960067736056}
   denizenRenderer: {fileID: 1730135938622204264}
-  presenceRenderer: {fileID: 1469058524095003433}
   controlSpriteSwitcher: {fileID: 3288055395983238836}
   buildingSpriteSwitcher: {fileID: 3863326586205696723}
-  sympathySprite: {fileID: 21300000, guid: e7c94821c91d3a142986a365bdc3407d, type: 3}
+  presenceRenderer: {fileID: 7457817685483931787}
   foxSprite: {fileID: 21300000, guid: 45dd78be6a42fba45b804dd87cdb3b13, type: 3}
   mouseSprite: {fileID: 21300000, guid: ddbf050057ae351429b7a6524c20424c, type: 3}
   rabbitSprite: {fileID: 21300000, guid: d10f1f0335c32e748b2ad8c380e131cf, type: 3}

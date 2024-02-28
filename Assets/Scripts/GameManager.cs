@@ -65,9 +65,11 @@ public class GameManager : MonoBehaviour
             clearingInfoGenerator.GenerateDenizens();
             clearingInfoGenerator.GenerateClearingNames();
             
-            factionGenerator.SetupMarquisate();
-            factionGenerator.SetupEyrieDynasties();
             factionGenerator.SetupWoodlandAlliance();
+            factionGenerator.SetupLizardCult();
+            factionGenerator.SetupRiverfolkCompany();
+            factionGenerator.SetupGrandDuchy();
+            factionGenerator.SetupCorvidConspiracy();
             factionGenerator.SetupDenizens();
             factionGenerator.Reset();
         }
