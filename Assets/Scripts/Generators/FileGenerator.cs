@@ -203,8 +203,7 @@ public class FileGenerator
             }
         }
     }
-
-    //Any Implementation of AttributeLine must implement a static AttributeType variable and a constructor that takes the splitLine.
+    
     private abstract class AttributeLine
     {
         public int clearingID;
