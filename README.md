@@ -8,7 +8,7 @@ Currently it generates 12 clearings in random locations and randomly chooses pat
 
 A random river is generated going through the woodland when the r key is pressed along with the clearings. Pressing the R button at the top of the screen will delete the current river and allow you to create a new one by clicking on clearings in order. Pressing the R button again will exit the river edit mode.
 
-The layout of the clearing can be saved by pressing the save button and typing in a name. This will be saved in a MyWoodlands folder in your documents. Woodlands can be loaded in by pressing the load button which will spawn a list of all files in your MyWoodlands folder which can be selected to load in the layout. The river is not currently saved.
+The layout of the clearing can be saved by pressing the save button and typing in a name. This will be saved in a MyWoodlands folder in your documents. Woodlands can be loaded in by pressing the load button which will spawn a list of all files in your MyWoodlands folder which can be selected to load in the layout.
 
 There are three implemented edit modes:
 - (Modify) the user may drag around clearings to change their position or double click on clearings in order to modify their name, major denizen and faction.
@@ -20,6 +20,6 @@ Planned Features:
 - Editing names and denizens and control of each clearing (DONE).
 - Adding and Deleting clearings and paths to existing woodlands (DONE),
 - Saving and loading clearing layouts (DONE)
-- Options to reroll each element (clearing locations, paths, denizens, names, faction control) seperately.
+- Options to reroll each element (clearing locations, paths, denizens, names, faction control) seperately (DONE)
 - The river going between non-adjacent clearings that is both able to be randomly generated and editable (DONE)
-- Choosing which factions you want to be involved in faction control setup.
+- Choosing which factions you want to be involved in faction control setup (DONE)
