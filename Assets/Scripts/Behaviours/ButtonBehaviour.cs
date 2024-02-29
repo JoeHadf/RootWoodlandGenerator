@@ -204,7 +204,7 @@ public class ButtonBehaviour : MonoBehaviour
         endModifyModeButton.SetActive(true);
         factionSelector.SelectFaction(editingClearing.clearingControl);
         hasBuildingToggle.isOn = editingClearing.hasBuilding;
-        hasSympathyToggle.isOn = editingClearing.hasSympathy;
+        hasSympathyToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.WoodlandAlliance);
         EndModifyingClearing();
     }
 
@@ -236,7 +236,14 @@ public class ButtonBehaviour : MonoBehaviour
 
     public void ToggleHasSympathy(bool toggleState)
     {
-        editingClearing.SetHasSympathy(toggleState);
+        if (toggleState)
+        {
+            editingClearing.SetPresence(FactionType.WoodlandAlliance);
+        }
+        else
+        {
+            editingClearing.RemovePresence(FactionType.WoodlandAlliance);
+        }
     }
     
     private void ChangeEditingClearing(Clearing clearing)

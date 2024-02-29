@@ -140,6 +140,8 @@ public class WorldState
                 PathID adjacentPathID = new PathID(id, adjacent);
                 DeletePath(adjacentPathID);
             }
+
+            adjacentClearingsByID.Remove(id);
         }
 
         Clearing clearingToDelete = clearingsByID[id];

@@ -11,11 +11,10 @@ public class Clearing : MonoBehaviour
     [SerializeField] private MeshFilter meshFilter;
     
     [SerializeField] private SpriteRenderer denizenRenderer;
-    [SerializeField] private SpriteRenderer presenceRenderer;
     [SerializeField] private FactionSpriteSwitcher controlSpriteSwitcher;
     [SerializeField] private FactionSpriteSwitcher buildingSpriteSwitcher;
-
-    [SerializeField] private Sprite sympathySprite;
+    [SerializeField] private PresenceRenderer presenceRenderer;
+    
     [SerializeField] private Sprite foxSprite;
     [SerializeField] private Sprite mouseSprite;
     [SerializeField] private Sprite rabbitSprite;
@@ -26,8 +25,6 @@ public class Clearing : MonoBehaviour
     
     public FactionType clearingControl { get; private set; }
     public bool hasBuilding { get; private set; }
-    
-    public bool hasSympathy { get; private set; }
     
     private int circleSteps = 15;
     
@@ -63,7 +60,6 @@ public class Clearing : MonoBehaviour
         SetMajorDenizen(DenizenType.Fox);
         SetClearingControl(FactionType.Denizens);
         hasBuilding = false;
-        hasSympathy = false;
     }
 
     void Start()
@@ -79,6 +75,16 @@ public class Clearing : MonoBehaviour
     public Vector3 GetPosition()
     {
         return transform.localPosition;
+    }
+
+    public bool GetHasFactionPresence(FactionType faction)
+    {
+        return presenceRenderer.FactionHasPresence(faction);
+    }
+
+    public FactionType[] GetPresentFactions()
+    {
+        return presenceRenderer.GetFactionsWithPresence();
     }
 
     public void SetPosition(Vector3 position)
@@ -145,18 +151,19 @@ public class Clearing : MonoBehaviour
         buildingSpriteSwitcher.SetFaction(hasBuilding ? clearingControl : FactionType.Denizens);
     }
 
-    public void SetHasSympathy(bool sympathy)
+    public void SetPresence(FactionType faction)
     {
-        hasSympathy = sympathy;
-        if (hasSympathy)
-        {
-            presenceRenderer.enabled = true;
-            presenceRenderer.sprite = sympathySprite;
-        }
-        else
-        {
-            presenceRenderer.enabled = false;
-        }
+        presenceRenderer.AddFactionPresence(faction);
+    }
+    
+    public void RemovePresence(FactionType faction)
+    {
+        presenceRenderer.RemoveFactionPresence(faction);
+    }
+
+    public void RemoveAllPresence()
+    {
+        presenceRenderer.RemoveAllFactionPresence();
     }
 
     private Sprite GetDenizenSprite(DenizenType denizen)

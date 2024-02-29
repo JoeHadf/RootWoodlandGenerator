@@ -9,6 +9,10 @@ public class FactionSpriteSwitcher : MonoBehaviour
     [SerializeField] private Sprite marquisateSprite;
     [SerializeField] private Sprite eyrieDynastiesSprite;
     [SerializeField] private Sprite woodlandAllianceSprite;
+    [SerializeField] private Sprite lizardCultSprite;
+    [SerializeField] private Sprite riverfolkCompanySprite;
+    [SerializeField] private Sprite grandDuchySprite;
+    [SerializeField] private Sprite corvidConspiracySprite;
 
     public void SetFaction(FactionType faction)
     {
@@ -35,6 +39,18 @@ public class FactionSpriteSwitcher : MonoBehaviour
                 return true;
             case FactionType.WoodlandAlliance:
                 factionSprite = woodlandAllianceSprite;
+                return true;
+            case FactionType.LizardCult:
+                factionSprite = lizardCultSprite;
+                return true;
+            case FactionType.RiverfolkCompany:
+                factionSprite = riverfolkCompanySprite;
+                return true;
+            case FactionType.GrandDuchy:
+                factionSprite = grandDuchySprite;
+                return true;
+            case FactionType.CorvidConspiracy:
+                factionSprite = corvidConspiracySprite;
                 return true;
         }
 
