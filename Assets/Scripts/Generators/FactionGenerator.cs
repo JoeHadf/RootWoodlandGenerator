@@ -1,12 +1,9 @@
-
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEngine;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
+using Extensions;
 
 public class FactionGenerator
 {
@@ -26,6 +23,20 @@ public class FactionGenerator
         usedCorners.Clear();
         usedCornerClearingIDs.Clear();
         contestedClearingIDs.Clear();
+    }
+    
+    public void RemoveAllFactionInfo()
+    {
+        List<Clearing> clearings = worldState.clearings;
+
+        for (int i = 0; i < clearings.Count; i++)
+        {
+            Clearing currentClearing = clearings[i];
+            
+            currentClearing.SetClearingControl(FactionType.Denizens);
+            currentClearing.SetHasBuilding(false);
+            currentClearing.RemoveAllPresence();
+        }
     }
 
     public void SetupMarquisate()
@@ -298,8 +309,9 @@ public class FactionGenerator
                 }
             }
         }
-        
-        List<Clearing> shuffledClearings = Shuffle<Clearing>(worldState.clearings);
+
+        List<Clearing> shuffledClearings = new List<Clearing>(worldState.clearings);
+        shuffledClearings.Shuffle();
 
         for (int i = 0; i < shuffledClearings.Count; i++)
         {
@@ -314,7 +326,9 @@ public class FactionGenerator
 
     public void SetupCorvidConspiracy()
     {
-        List<Clearing> shuffledClearings = Shuffle<Clearing>(worldState.clearings);
+        List<Clearing> shuffledClearings = new List<Clearing>(worldState.clearings);
+        shuffledClearings.Shuffle();
+
         int corvidClearingCount = Math.Min(4, shuffledClearings.Count);
 
         for (int i = 0; i < corvidClearingCount; i++)
@@ -583,24 +597,6 @@ public class FactionGenerator
         
         usedCorners.Add(corner);
         return corner;
-    }
-    
-    private List<T> Shuffle<T>(List<T> listToShuffle)
-    {
-        List<T> outputList = new List<T>(listToShuffle);
-        
-        for (int i = 0; i < outputList.Count; i++)
-        {
-            int nextElementIndex = Random.Range(0, outputList.Count - i);
-
-            T nextElement = outputList[nextElementIndex];
-            T swappedElement = outputList[^(i + 1)];
-
-            outputList[^(i + 1)] = nextElement;
-            outputList[nextElementIndex] = swappedElement;
-        }
-
-        return outputList;
     }
 }
 

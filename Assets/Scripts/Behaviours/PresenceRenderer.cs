@@ -36,6 +36,17 @@ public class PresenceRenderer : MonoBehaviour
             presenceObjects.RemoveAt(presenceIndex);
             factionToPresenceIndex.Remove(faction);
             UpdateObjectPositions(presenceIndex);
+            UpdatePresenceDictionary(presenceIndex);
+        }
+    }
+
+    public void RemoveAllFactionPresence()
+    {
+        FactionType[] presentFactions = GetFactionsWithPresence();
+        
+        foreach (FactionType faction in presentFactions)
+        {
+            RemoveFactionPresence(faction);
         }
     }
 
@@ -54,6 +65,22 @@ public class PresenceRenderer : MonoBehaviour
         for (int i = indexToUpdateFrom; i < presenceObjects.Count; i++)
         {
             presenceObjects[i].transform.localPosition = i * presenceDistance * Vector3.right;
+        }
+    }
+    
+    private void UpdatePresenceDictionary(int indexToUpdateFrom)
+    {
+        FactionType[] presentFactions = GetFactionsWithPresence();
+        for(int i = 0; i < presentFactions.Length; i++)
+        {
+            FactionType currentFaction = presentFactions[i];
+            if (factionToPresenceIndex.TryGetValue(currentFaction, out int index))
+            {
+                if (index > indexToUpdateFrom)
+                {
+                    factionToPresenceIndex[currentFaction]--;
+                }
+            }
         }
     }
 

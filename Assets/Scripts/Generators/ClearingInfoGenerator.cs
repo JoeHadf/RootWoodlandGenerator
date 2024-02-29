@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Windows;
+using Extensions;
+using Random = UnityEngine.Random;
 
 public class ClearingInfoGenerator
 {
@@ -33,14 +34,36 @@ public class ClearingInfoGenerator
         this.worldState = worldState;
     }
     
+    //assigns denizens to each clearing ensuring as even a spread as possible
     public void GenerateDenizens()
     {
-        List<Clearing> clearings = worldState.clearings;
+        List<Clearing> shuffledClearings = new List<Clearing>(worldState.clearings);
+        shuffledClearings.Shuffle();
 
-        for (int i = 0; i < clearings.Count; i++)
+        int baseDenizenCount = shuffledClearings.Count / 3;
+        int clearingsToAssign = shuffledClearings.Count % 3;
+
+        for (int i = 0; i < 3; i++)
         {
-            DenizenType denizen = ChooseRandomDenizen();
-            clearings[i].SetMajorDenizen(denizen);
+            DenizenType denizen = (DenizenType)i;
+            for (int j = 0; j < baseDenizenCount; j++)
+            {
+                shuffledClearings[i * baseDenizenCount + j].SetMajorDenizen(denizen);
+            }
+        }
+
+        switch (clearingsToAssign)
+        {
+            case 1:
+                shuffledClearings[^1].SetMajorDenizen((DenizenType)Random.Range(0, 3));
+                break;
+            case 2:
+                int firstDenizenID = Random.Range(0, 3);
+                shuffledClearings[^1].SetMajorDenizen((DenizenType)firstDenizenID);
+                bool goUp = Convert.ToBoolean(Random.Range(0, 2));
+                int secondDenizenID = (goUp) ? (firstDenizenID + 1) % 3: (firstDenizenID + 2) % 3;
+                shuffledClearings[^2].SetMajorDenizen((DenizenType)secondDenizenID);
+                break;
         }
     }
 

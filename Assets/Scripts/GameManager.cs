@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private FileScrollList fileScrollList;
     [SerializeField] private FileSaveMenu fileSaveMenu;
+    [SerializeField] private RerollPanel rerollPanel;
+    [SerializeField] private FactionRerollMenu factionRerollMenu;
 
     [SerializeField] private River river;
 
@@ -35,36 +37,20 @@ public class GameManager : MonoBehaviour
         mouseBehaviour.Init(worldState, buttonBehaviour);
         fileScrollList.Init(fileGenerator);
         fileSaveMenu.Init(fileGenerator);
+        rerollPanel.Init(worldState, mapGenerator, clearingInfoGenerator, riverGenerator);
+        factionRerollMenu.Init(worldState, factionGenerator);
     }
     
     void Start()
     {
-        /*
-        fileGenerator.ReadFileWithName("littleWoodland");
-
-        List<Clearing> predefinedRiver = new List<Clearing>()
-            { worldState.clearingsByID[2], worldState.clearingsByID[5], worldState.clearingsByID[4] };
-        worldState.riverClearings = predefinedRiver;
-        UpdateRiver();
-
-        for (int i = 0; i < predefinedRiver.Count; i++)
-        {
-            predefinedRiver[i].OnClearingPositionChanged += UpdateRiver;
-        }
-        */
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.R) && !mouseBehaviour.IsDoingAction() && !buttonBehaviour.IsDoingAction())
         {
-            worldState.DeleteAllClearings();
-            mapGenerator.GenerateClearings();
-            riverGenerator.GenerateRiver();
-            mapGenerator.GeneratePaths();
-            clearingInfoGenerator.GenerateDenizens();
-            clearingInfoGenerator.GenerateClearingNames();
-            
+            factionGenerator.SetupMarquisate();
+            factionGenerator.SetupEyrieDynasties();
             factionGenerator.SetupWoodlandAlliance();
             factionGenerator.SetupLizardCult();
             factionGenerator.SetupRiverfolkCompany();

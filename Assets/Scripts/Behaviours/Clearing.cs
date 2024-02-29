@@ -161,6 +161,11 @@ public class Clearing : MonoBehaviour
         presenceRenderer.RemoveFactionPresence(faction);
     }
 
+    public void RemoveAllPresence()
+    {
+        presenceRenderer.RemoveAllFactionPresence();
+    }
+
     private Sprite GetDenizenSprite(DenizenType denizen)
     {
         switch (denizen)

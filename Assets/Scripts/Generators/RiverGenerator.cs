@@ -28,35 +28,42 @@ public class RiverGenerator
 
     private List<Clearing> GetRiverClearings()
     {
-        Clearing startClearing = ChooseEdgeClearing();
-        riverClearingIDs.Add(startClearing.clearingID);
-        Clearing endClearing = ChooseEdgeClearing();
-        riverClearingIDs.Add(endClearing.clearingID);
-        
-        List<Clearing> centreClearings = new List<Clearing>(pointCount);
-
-        for (int i = 0; i < pointCount; i++)
+        if (worldState.clearings.Count > 0)
         {
-            float xCoord = Random.Range(-xRange, xRange);
-            float yCoord = Random.Range(-yRange, yRange);
+            Clearing startClearing = ChooseEdgeClearing();
+            riverClearingIDs.Add(startClearing.clearingID);
+            Clearing endClearing = ChooseEdgeClearing();
+            riverClearingIDs.Add(endClearing.clearingID);
+        
+            List<Clearing> centreClearings = new List<Clearing>(pointCount);
 
-            Vector3 point = new Vector3(xCoord, yCoord, 0);
-
-            Clearing closestClearing = GetClearingClosestToPoint(point);
-            
-            if (!riverClearingIDs.Contains(closestClearing.clearingID))
+            for (int i = 0; i < pointCount; i++)
             {
-                centreClearings.Add(closestClearing);
-                riverClearingIDs.Add(closestClearing.clearingID);
+                float xCoord = Random.Range(-xRange, xRange);
+                float yCoord = Random.Range(-yRange, yRange);
+
+                Vector3 point = new Vector3(xCoord, yCoord, 0);
+
+                Clearing closestClearing = GetClearingClosestToPoint(point);
+            
+                if (!riverClearingIDs.Contains(closestClearing.clearingID))
+                {
+                    centreClearings.Add(closestClearing);
+                    riverClearingIDs.Add(closestClearing.clearingID);
+                }
             }
+
+            List<Clearing> riverWithCentreClearings =
+                AddCentreClearingsToRiver(startClearing, endClearing, centreClearings, out List<LineSegment> riverSegments);
+
+            List<Clearing> riverWithOverlappingClearings = AddOverlappingClearings(riverWithCentreClearings, riverSegments);
+
+            return riverWithOverlappingClearings;
         }
-
-        List<Clearing> riverWithCentreClearings =
-            AddCentreClearingsToRiver(startClearing, endClearing, centreClearings, out List<LineSegment> riverSegments);
-
-        List<Clearing> riverWithOverlappingClearings = AddOverlappingClearings(riverWithCentreClearings, riverSegments);
-
-        return riverWithOverlappingClearings;
+        else
+        {
+            return new List<Clearing>();
+        }
     }
 
     private List<Clearing> AddOverlappingClearings(List<Clearing> riverWithCentreClearings, List<LineSegment> riverSegments)
