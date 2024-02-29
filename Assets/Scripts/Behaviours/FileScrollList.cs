@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class FileScrollList : MonoBehaviour
 {
     [SerializeField] private GameObject fileSelectButtonObject;
     [SerializeField] private Scrollbar scrollBar;
-    [SerializeField] private ButtonBehaviour buttonBehaviour;
+    [SerializeField] private SaveLoadPanel saveLoadPanel;
 
     private FileGenerator fileGenerator;
 
@@ -42,7 +43,7 @@ public class FileScrollList : MonoBehaviour
     public void EndScrollList()
     {
         DeleteButtons();
-        buttonBehaviour.CloseScrollList();
+        saveLoadPanel.CloseScrollList();
     }
 
     public void SelectFile(string fileName)

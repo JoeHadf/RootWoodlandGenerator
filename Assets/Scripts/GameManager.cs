@@ -1,13 +1,18 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private GameObject clearing;
     [SerializeField] private GameObject path;
 
-    [SerializeField] private ButtonBehaviour buttonBehaviour;
+    [FormerlySerializedAs("buttonBehaviour")] [SerializeField] private SaveLoadPanel saveLoadPanel;
+    [SerializeField] private EditClearingPanel editClearingPanel;
     [SerializeField] private MouseBehaviour mouseBehaviour;
 
+    [SerializeField] private EditModePanel editModePanel;
     [SerializeField] private FileScrollList fileScrollList;
     [SerializeField] private FileSaveMenu fileSaveMenu;
     [SerializeField] private RerollPanel rerollPanel;
@@ -33,31 +38,12 @@ public class GameManager : MonoBehaviour
         factionGenerator = new FactionGenerator(worldState);
         fileGenerator = new FileGenerator(worldState);
         
-        buttonBehaviour.Init(worldState);
-        mouseBehaviour.Init(worldState, buttonBehaviour);
+        saveLoadPanel.Init(worldState);
+        mouseBehaviour.Init(worldState, saveLoadPanel, editClearingPanel, factionRerollMenu);
+        editModePanel.Init(worldState);
         fileScrollList.Init(fileGenerator);
         fileSaveMenu.Init(fileGenerator);
         rerollPanel.Init(worldState, mapGenerator, clearingInfoGenerator, riverGenerator);
         factionRerollMenu.Init(worldState, factionGenerator);
-    }
-    
-    void Start()
-    {
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.R) && !mouseBehaviour.IsDoingAction() && !buttonBehaviour.IsDoingAction())
-        {
-            factionGenerator.SetupMarquisate();
-            factionGenerator.SetupEyrieDynasties();
-            factionGenerator.SetupWoodlandAlliance();
-            factionGenerator.SetupLizardCult();
-            factionGenerator.SetupRiverfolkCompany();
-            factionGenerator.SetupGrandDuchy();
-            factionGenerator.SetupCorvidConspiracy();
-            factionGenerator.SetupDenizens();
-            factionGenerator.Reset();
-        }
     }
 }

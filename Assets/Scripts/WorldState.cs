@@ -26,7 +26,7 @@ public class WorldState
 
     public WorldState(GameObject clearingObject, GameObject pathObject, River river)
     {
-        editMode = EditMode.Modify;
+        editMode = EditMode.Move;
         clearings = new List<Clearing>();
         clearingsByID = new Dictionary<int, Clearing>();
         paths = new List<Path>();
@@ -227,8 +227,9 @@ public class WorldState
 
 public enum EditMode
 {
-    Modify,
+    Write,
+    Move,
     Create,
-    Destroy,
-    EditRiver,
+    Delete,
+    River
 }
