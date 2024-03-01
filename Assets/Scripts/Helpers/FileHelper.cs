@@ -8,6 +8,12 @@ public static class FileHelper
     {
         string myDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         string myWoodlandsPath = System.IO.Path.Combine(myDocumentsPath, "MyWoodlands");
+        
+        if (!Directory.Exists(myWoodlandsPath))
+        {
+            Directory.CreateDirectory(myWoodlandsPath);
+        }
+        
         return myWoodlandsPath;
     }
     public static DirectoryInfo GetMyWoodlandsFolder()
