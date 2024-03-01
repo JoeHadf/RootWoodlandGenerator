@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 public class WorldState
 {
     public EditMode editMode { get; private set; }
+    public MenuState menuState { get; private set; }
 
     public List<Clearing> clearings { get; private set; }
     public Dictionary<int, Clearing> clearingsByID { get; private set; }
@@ -15,6 +17,20 @@ public class WorldState
     public Dictionary<int, HashSet<int>> adjacentClearingsByID { get; private set; }
 
     public River river;
+    public delegate void EnterMenuStateEventHandler();
+    
+    public event EnterMenuStateEventHandler OnEnterDefaultMenuState;
+    public event EnterMenuStateEventHandler OnExitDefaultMenuState;
+    public event EnterMenuStateEventHandler OnEnterEditClearingMenuState;
+    public event EnterMenuStateEventHandler OnExitEditClearingMenuState;
+    public event EnterMenuStateEventHandler OnEnterRerollFactionMenuState;
+    public event EnterMenuStateEventHandler OnExitRerollFactionMenuState;
+    public event EnterMenuStateEventHandler OnEnterEscapeMenuState;
+    public event EnterMenuStateEventHandler OnExitEscapeMenuState;
+    public event EnterMenuStateEventHandler OnEnterSaveMenuState;
+    public event EnterMenuStateEventHandler OnExitSaveMenuState;
+    public event EnterMenuStateEventHandler OnEnterLoadMenuState;
+    public event EnterMenuStateEventHandler OnExitLoadMenuState;
 
     private GameObject clearingObject;
     private GameObject pathObject;
@@ -26,7 +42,7 @@ public class WorldState
 
     public WorldState(GameObject clearingObject, GameObject pathObject, River river)
     {
-        editMode = EditMode.Modify;
+        editMode = EditMode.Write;
         clearings = new List<Clearing>();
         clearingsByID = new Dictionary<int, Clearing>();
         paths = new List<Path>();
@@ -114,6 +130,54 @@ public class WorldState
         {
             adjacentClearingsByID[clearingID] = new HashSet<int>();
         }
+    }
+
+    public bool CanEnterMenuState(MenuState nextState)
+    {
+        switch (menuState)
+        {
+            case MenuState.Default:
+                if (nextState is MenuState.EditClearing or MenuState.RerollFaction or MenuState.Escape)
+                {
+                    return true;
+                }
+                break;
+            case MenuState.EditClearing:
+            case MenuState.RerollFaction:
+                if (nextState == MenuState.Default)
+                {
+                    return true;
+                }
+                break;
+            case MenuState.Escape:
+                if (nextState is MenuState.Default or MenuState.Save or MenuState.Load)
+                {
+                    return true;
+                }
+                break;
+            case MenuState.Save:
+            case MenuState.Load:
+                if (nextState == MenuState.Escape)
+                {
+                    return true;
+                }
+                break;
+        }
+
+        return false;
+    }
+
+    public bool TryEnterMenuState(MenuState nextState)
+    {
+        if (CanEnterMenuState(nextState))
+        {
+            InvokeOnExitMenuStateEvent(menuState);
+            InvokeOnEnterMenuStateEvent(nextState);
+            this.menuState = nextState;
+            return true;
+        }
+
+        return false;
     }
 
     public bool TryGetClearingWithID(int clearingID, out Clearing clearing)
@@ -223,12 +287,73 @@ public class WorldState
 
         return new HashSet<int>();
     }
+
+    private void InvokeOnEnterMenuStateEvent(MenuState enteringState)
+    {
+        switch (enteringState)
+        {
+            case MenuState.Default:
+                OnEnterDefaultMenuState?.Invoke();
+                break;
+            case MenuState.EditClearing:
+                OnEnterEditClearingMenuState?.Invoke();
+                break;
+            case MenuState.RerollFaction:
+                OnEnterRerollFactionMenuState?.Invoke();
+                break;
+            case MenuState.Escape:
+                OnEnterEscapeMenuState?.Invoke();
+                break;
+            case MenuState.Save:
+                OnEnterSaveMenuState?.Invoke();
+                break;
+            case MenuState.Load:
+                OnEnterLoadMenuState?.Invoke();
+                break;
+        }
+    }
+    
+    private void InvokeOnExitMenuStateEvent(MenuState enteringState)
+    {
+        switch (enteringState)
+        {
+            case MenuState.Default:
+                OnExitDefaultMenuState?.Invoke();
+                break;
+            case MenuState.EditClearing:
+                OnExitEditClearingMenuState?.Invoke();
+                break;
+            case MenuState.RerollFaction:
+                OnExitRerollFactionMenuState?.Invoke();
+                break;
+            case MenuState.Escape:
+                OnExitEscapeMenuState?.Invoke();
+                break;
+            case MenuState.Save:
+                OnExitSaveMenuState?.Invoke();
+                break;
+            case MenuState.Load:
+                OnExitLoadMenuState?.Invoke();
+                break;
+        }
+    }
 }
 
 public enum EditMode
 {
-    Modify,
+    Write,
+    Move,
     Create,
-    Destroy,
-    EditRiver,
+    Delete,
+    River
+}
+
+public enum MenuState
+{
+    Default,
+    EditClearing,
+    RerollFaction,
+    Escape,
+    Save,
+    Load
 }

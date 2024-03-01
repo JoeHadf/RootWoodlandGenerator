@@ -65,7 +65,7 @@ public class FileGenerator
 
         string myWoodlandsPath = FileHelper.GetMyWoodlandsFolderPath();
 
-        using (StreamWriter file = new StreamWriter(System.IO.Path.Combine(myWoodlandsPath, fileName + ".root")))
+        using (StreamWriter file = new StreamWriter(System.IO.Path.Combine(myWoodlandsPath, fileName + ".wdld")))
         {
             if (includeClearings)
             {
@@ -102,7 +102,7 @@ public class FileGenerator
     public void ReadFileWithName(string name)
     {
         string myWoodlandsPath = FileHelper.GetMyWoodlandsFolderPath();
-        string filePath = System.IO.Path.Combine(myWoodlandsPath, name + ".root");
+        string filePath = System.IO.Path.Combine(myWoodlandsPath, name + ".wdld");
 
         if (File.Exists(filePath))
         {

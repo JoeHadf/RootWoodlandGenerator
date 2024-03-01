@@ -27,9 +27,6 @@ public class Clearing : MonoBehaviour
     public bool hasBuilding { get; private set; }
     
     private int circleSteps = 15;
-    
-    private float xRange = 9.5f;
-    private float yRange = 4.0f;
 
     public delegate void PositionEventHandler();
 
@@ -42,21 +39,21 @@ public class Clearing : MonoBehaviour
         int xSign = Math.Sign(clearingPosition.x);
         int ySign = Math.Sign(clearingPosition.y);
 
-        float xSideDistance = xRange - Math.Abs(clearingPosition.x);
-        float ySideDistance = yRange - Math.Abs(clearingPosition.y);
+        float xSideDistance = GlobalConstants.xRange - Math.Abs(clearingPosition.x);
+        float ySideDistance = GlobalConstants.yRange - Math.Abs(clearingPosition.y);
 
         if (xSideDistance < ySideDistance)
         {
-            return new Vector3(xSign * (xRange + 5), clearingPosition.y, 0);
+            return new Vector3(xSign * (GlobalConstants.xRange + 5), clearingPosition.y, 0);
         }
         
-        return new Vector3(clearingPosition.x, ySign * (yRange + 5), 0);
+        return new Vector3(clearingPosition.x, ySign * (GlobalConstants.yRange + 5), 0);
     }
 
     public void Init(int id)
     {
         this.clearingID = id;
-        SetClearingName(id.ToString());
+        SetClearingName("New Clearing");
         SetMajorDenizen(DenizenType.Fox);
         SetClearingControl(FactionType.Denizens);
         hasBuilding = false;
@@ -89,11 +86,11 @@ public class Clearing : MonoBehaviour
 
     public void SetPosition(Vector3 position)
     {
-        float xBounded = Math.Clamp(position.x, -xRange, xRange);
-        float yBounded = Math.Clamp(position.y, -yRange, yRange);
+        float xBounded = Math.Clamp(position.x, -GlobalConstants.xRange, GlobalConstants.xRange);
+        float yBounded = Math.Clamp(position.y, -GlobalConstants.yRange, GlobalConstants.yRange);
         transform.localPosition = new Vector3(xBounded, yBounded, 0);
 
-        if (OnClearingPositionChanged != null) OnClearingPositionChanged.Invoke();
+        OnClearingPositionChanged?.Invoke();
     }
 
     private void DrawOutline()

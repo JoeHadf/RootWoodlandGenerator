@@ -1,19 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class MouseBehaviour : MonoBehaviour
 {
     private WorldState worldState;
-    private ButtonBehaviour buttonBehaviour;
-
-    private Vector3 mouseWorldPosition = Vector3.zero;
+    private EditClearingPanel editClearingPanel;
     
-    //double clicking
-    private bool hasClickedRecently = false;
-    private float firstClickTime = 0.0f;
-    private float doubleClickTime = 0.5f;
+    private Vector3 mouseWorldPosition = Vector3.zero;
     
     //moving clearings
     private Clearing followingClearing;
@@ -21,18 +17,15 @@ public class MouseBehaviour : MonoBehaviour
     private Vector3 clickStart;
     private Vector3 clearingStart;
 
-    [SerializeField] private RectTransform canvasTransform;
-    [SerializeField] private GameObject changeNameButton;
-
     //creating paths
     private bool hasTempPath = false;
     private Clearing temporaryPathStart;
     private Path temporaryPath;
 
-    public void Init(WorldState worldState, ButtonBehaviour buttonBehaviour)
+    public void Init(WorldState worldState, EditClearingPanel editClearingPanel)
     {
         this.worldState = worldState;
-        this.buttonBehaviour = buttonBehaviour;
+        this.editClearingPanel = editClearingPanel;
     }
     void Update()
     {
@@ -42,40 +35,28 @@ public class MouseBehaviour : MonoBehaviour
         
         if (Input.GetMouseButtonDown(0))
         {
-            bool doubleClick = false;
-            if (!hasClickedRecently || Time.time - firstClickTime > doubleClickTime)
-            {
-                hasClickedRecently = true;
-                firstClickTime = Time.time;
-            }
-            else
-            {
-                if (Time.time - firstClickTime < doubleClickTime)
-                {
-                    doubleClick = true;
-                    hasClickedRecently = true;
-                }
-            }
-            
             bool isOverButton = UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
 
-            if (!isOverButton && !buttonBehaviour.IsDoingAction())
+            if (!isOverButton && worldState.menuState == MenuState.Default)
             {
                 RaycastHit2D hit = Physics2D.Raycast(mouseWorldPosition, Vector2.zero, 0, LayerMask.GetMask("ClearingCircle", "ClearingPath"));
 
                 switch (worldState.editMode)
                 {
+                    case EditMode.Write:
+                        WriteMode(hit);
+                        break;
+                    case EditMode.Move:
+                        MoveMode(hit);
+                        break;
                     case EditMode.Create:
                         CreateMode(hit);
                         break;
-                    case EditMode.Destroy:
+                    case EditMode.River:
+                        RiverMode(hit);
+                        break;
+                    case EditMode.Delete:
                         DestroyMode(hit);
-                        break;
-                    case EditMode.Modify:
-                        ModifyMode(hit, doubleClick);
-                        break;
-                    case EditMode.EditRiver:
-                        EditRiverMode(hit);
                         break;
                 }
             }
@@ -118,6 +99,28 @@ public class MouseBehaviour : MonoBehaviour
     {
         return isFollowing || hasTempPath;
     }
+    
+    private void WriteMode(RaycastHit2D hit)
+    {
+        if (hit.collider != null && hit.collider.CompareTag("Clearing"))
+        {
+            Clearing clearing = hit.collider.gameObject.GetComponent<Clearing>();
+            editClearingPanel.EnterEditClearingMenuState(clearing);
+        }
+    }
+    
+    private void MoveMode(RaycastHit2D hit)
+    {
+        if (hit.collider != null && hit.collider.CompareTag("Clearing"))
+        {
+            Clearing clearing = hit.collider.gameObject.GetComponent<Clearing>();
+            
+            followingClearing = clearing;
+            isFollowing = true;
+            clickStart = mouseWorldPosition;
+            clearingStart = clearing.GetPosition();
+        }
+    }
 
     private void CreateMode(RaycastHit2D hit)
     {
@@ -135,6 +138,15 @@ public class MouseBehaviour : MonoBehaviour
         }
     }
     
+    private void RiverMode(RaycastHit2D hit)
+    {
+        if (hit.collider != null && hit.collider.CompareTag("Clearing"))
+        {
+            Clearing clearing = hit.collider.gameObject.GetComponent<Clearing>();
+            worldState.river.AddClearingToRiver(clearing);
+        }
+    }
+    
     private void DestroyMode(RaycastHit2D hit)
     {
         if (hit.collider != null)
@@ -149,35 +161,6 @@ public class MouseBehaviour : MonoBehaviour
                 Path path = hit.collider.gameObject.GetComponent<Path>();
                 worldState.DeletePath(path.pathID);
             }
-        }
-    }
-    
-    private void ModifyMode(RaycastHit2D hit, bool doubleClick)
-    {
-        if (hit.collider != null && hit.collider.CompareTag("Clearing"))
-        {
-            Clearing clearing = hit.collider.gameObject.GetComponent<Clearing>();
-            if (doubleClick)
-            {
-                buttonBehaviour.StartModifyingClearing(clearing);
-            }
-            else
-            {
-                buttonBehaviour.EndModifyingClearing();
-                followingClearing = clearing;
-                isFollowing = true;
-                clickStart = mouseWorldPosition;
-                clearingStart = clearing.GetPosition();
-            }
-        }
-    }
-
-    private void EditRiverMode(RaycastHit2D hit)
-    {
-        if (hit.collider != null && hit.collider.CompareTag("Clearing"))
-        {
-            Clearing clearing = hit.collider.gameObject.GetComponent<Clearing>();
-            worldState.river.AddClearingToRiver(clearing);
         }
     }
 }
