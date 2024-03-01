@@ -7,10 +7,8 @@ using UnityEngine;
 public class MouseBehaviour : MonoBehaviour
 {
     private WorldState worldState;
-    private SaveLoadPanel _saveLoadPanel;
     private EditClearingPanel editClearingPanel;
-    private FactionRerollMenu factionRerollMenu;
-
+    
     private Vector3 mouseWorldPosition = Vector3.zero;
     
     //moving clearings
@@ -24,12 +22,10 @@ public class MouseBehaviour : MonoBehaviour
     private Clearing temporaryPathStart;
     private Path temporaryPath;
 
-    public void Init(WorldState worldState, SaveLoadPanel saveLoadPanel, EditClearingPanel editClearingPanel, FactionRerollMenu factionRerollMenu)
+    public void Init(WorldState worldState, EditClearingPanel editClearingPanel)
     {
         this.worldState = worldState;
-        this._saveLoadPanel = saveLoadPanel;
         this.editClearingPanel = editClearingPanel;
-        this.factionRerollMenu = factionRerollMenu;
     }
     void Update()
     {
@@ -41,7 +37,7 @@ public class MouseBehaviour : MonoBehaviour
         {
             bool isOverButton = UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
 
-            if (!isOverButton && !_saveLoadPanel.IsDoingAction() && !editClearingPanel.isEditingClearing && !factionRerollMenu.isRerollingFaction)
+            if (!isOverButton && worldState.menuState == MenuState.Default)
             {
                 RaycastHit2D hit = Physics2D.Raycast(mouseWorldPosition, Vector2.zero, 0, LayerMask.GetMask("ClearingCircle", "ClearingPath"));
 
@@ -109,9 +105,7 @@ public class MouseBehaviour : MonoBehaviour
         if (hit.collider != null && hit.collider.CompareTag("Clearing"))
         {
             Clearing clearing = hit.collider.gameObject.GetComponent<Clearing>();
-            
-            editClearingPanel.UpdateEditingClearing(clearing);
-            editClearingPanel.OpenEditClearingPanel();
+            editClearingPanel.EnterEditClearingMenuState(clearing);
         }
     }
     

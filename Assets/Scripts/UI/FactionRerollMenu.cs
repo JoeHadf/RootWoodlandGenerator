@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class FactionRerollMenu : MonoBehaviour
 {
-    public bool isRerollingFaction { get; private set; }
 
     private WorldState worldState;
     private FactionGenerator factionGenerator;
@@ -22,32 +21,24 @@ public class FactionRerollMenu : MonoBehaviour
     {
         this.worldState = worldState;
         this.factionGenerator = factionGenerator;
+
+        this.worldState.OnEnterRerollFactionMenuState += OpenFactionRerollMenu;
+        this.worldState.OnExitRerollFactionMenuState += CloseFactionRerollMenu;
     }
 
-    public void OpenFactionRerollMenu()
-    {
-        marquisateToggle.isOn = false;
-        eyrieToggle.isOn = false;
-        woodlandAllianceToggle.isOn = false;
-        lizardToggle.isOn = false;
-        riverfolkToggle.isOn = false;
-        duchyToggle.isOn = false;
-        corvidToggle.isOn = false;
-
-        isRerollingFaction = true;
-
-        gameObject.SetActive(true);
+    public void EnterRerollFactionMenuState()
+    { 
+        worldState.TryEnterMenuState(MenuState.RerollFaction);
     }
 
-    public void CloseFactionRerollMenu()
+    public void EnterDefaultMenuState()
     {
-        isRerollingFaction = false;
-        gameObject.SetActive(false);
+        worldState.TryEnterMenuState(MenuState.Default);
     }
 
     public void DoFactionReroll()
     {
-        CloseFactionRerollMenu();
+        EnterDefaultMenuState();
         
         if (worldState.clearings.Count <= 0)
         {
@@ -93,5 +84,23 @@ public class FactionRerollMenu : MonoBehaviour
         
         factionGenerator.SetupDenizens();
         factionGenerator.Reset();
+    }
+
+    private void OpenFactionRerollMenu()
+    {
+        marquisateToggle.isOn = false;
+        eyrieToggle.isOn = false;
+        woodlandAllianceToggle.isOn = false;
+        lizardToggle.isOn = false;
+        riverfolkToggle.isOn = false;
+        duchyToggle.isOn = false;
+        corvidToggle.isOn = false;
+
+        gameObject.SetActive(true);
+    }
+
+    private void CloseFactionRerollMenu()
+    {
+        gameObject.SetActive(false);
     }
 }

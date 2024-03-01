@@ -21,33 +21,48 @@ public class RerollPanel : MonoBehaviour
     
     public void RerollWoodland()
     {
-        worldState.DeleteAllClearings();
-        worldState.DeleteAllClearings();
-        mapGenerator.GenerateClearings();
-        riverGenerator.GenerateRiver();
-        mapGenerator.GeneratePaths();
-        clearingInfoGenerator.GenerateDenizens();
-        clearingInfoGenerator.GenerateClearingNames();
+        if (worldState.menuState == MenuState.Default)
+        {
+            worldState.DeleteAllClearings();
+            worldState.DeleteAllClearings();
+            mapGenerator.GenerateClearings();
+            riverGenerator.GenerateRiver();
+            mapGenerator.GeneratePaths();
+            clearingInfoGenerator.GenerateDenizens();
+            clearingInfoGenerator.GenerateClearingNames();
+        }
     }
 
     public void RerollPaths()
     {
-        worldState.DeleteAllPaths();
-        mapGenerator.GeneratePaths();
+        if (worldState.menuState == MenuState.Default)
+        {
+            worldState.DeleteAllPaths();
+            mapGenerator.GeneratePaths();
+        }
     }
 
     public void RerollRiver()
     {
-        riverGenerator.GenerateRiver();
+        if (worldState.menuState == MenuState.Default)
+        {
+            riverGenerator.GenerateRiver();
+        }
     }
 
     public void RerollDenizens()
     {
-        clearingInfoGenerator.GenerateDenizens();
+        if (worldState.menuState == MenuState.Default)
+        {
+            clearingInfoGenerator.GenerateDenizens();
+        }
     }
 
     public void RerollNames()
     {
-        clearingInfoGenerator.GenerateClearingNames();
+        if (worldState.menuState == MenuState.Default)
+        {
+            clearingInfoGenerator.GenerateClearingNames();
+        }
     }
 }

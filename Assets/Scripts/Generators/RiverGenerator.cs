@@ -7,9 +7,6 @@ using Random = UnityEngine.Random;
 public class RiverGenerator
 {
     private WorldState worldState;
-    
-    private float xRange = 9.5f;
-    private float yRange = 4.0f;
 
     private int pointCount = 5;
     
@@ -39,8 +36,8 @@ public class RiverGenerator
 
             for (int i = 0; i < pointCount; i++)
             {
-                float xCoord = Random.Range(-xRange, xRange);
-                float yCoord = Random.Range(-yRange, yRange);
+                float xCoord = Random.Range(-GlobalConstants.xRange, GlobalConstants.xRange);
+                float yCoord = Random.Range(-GlobalConstants.yRange, GlobalConstants.yRange);
 
                 Vector3 point = new Vector3(xCoord, yCoord, 0);
 
@@ -202,7 +199,7 @@ public class RiverGenerator
             Clearing currentClearing = clearings[i];
             Vector3 clearingPosition = currentClearing.GetPosition();
             float wallTypeCoordinate = (isXWall) ? clearingPosition.x : clearingPosition.y;
-            float wallPosition = (isPositive) ? xRange : -xRange;
+            float wallPosition = (isPositive) ? GlobalConstants.xRange : -GlobalConstants.xRange;
 
             float distanceToWall = Math.Abs(wallPosition - wallTypeCoordinate);
             if (distanceToWall < currentDistance && !riverClearingIDs.Contains(currentClearing.clearingID))

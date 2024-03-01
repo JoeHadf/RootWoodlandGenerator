@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class EditClearingPanel : MonoBehaviour
 {
+    private WorldState worldState;
+    
     private Clearing editingClearing;
 
     [SerializeField] private Button denizenControlButton;
@@ -35,41 +37,23 @@ public class EditClearingPanel : MonoBehaviour
     
     [SerializeField] private GameObject denizenSelector;
 
-    public bool isEditingClearing { get; private set; }
-
-    public void UpdateEditingClearing(Clearing clearing)
+    public void Init(WorldState worldState)
     {
-        this.editingClearing = clearing;
+        this.worldState = worldState;
+
+        this.worldState.OnEnterEditClearingMenuState += OpenEditClearingPanel;
+        this.worldState.OnExitEditClearingMenuState += CloseEditClearingPanel;
     }
     
-    public void OpenEditClearingPanel()
+    public void EnterEditClearingMenuState(Clearing clearing)
     {
-        SetFactionControl(editingClearing.clearingControl);
-
-        marquisatePresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.Marquisate);
-        eyriePresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.EyrieDynasties);
-        woodlandAlliancePresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.WoodlandAlliance);
-        lizardPresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.LizardCult);
-        riverfolkPresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.RiverfolkCompany);
-        duchyPresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.GrandDuchy);
-        corvidPresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.CorvidConspiracy);
-
-        hasBuildingToggle.isOn = editingClearing.hasBuilding;
-
-        nameInputField.text = editingClearing.clearingName;
-        
-        SetDenizen(editingClearing.majorDenizen);
-
-        isEditingClearing = true;
-        
-        gameObject.SetActive(true);
+        this.editingClearing = clearing;
+        worldState.TryEnterMenuState(MenuState.EditClearing);
     }
 
-    public void CloseEditClearingPanel()
+    public void EnterDefaultMenuState()
     {
-        isEditingClearing = false;
-        
-        gameObject.SetActive(false);
+        worldState.TryEnterMenuState(MenuState.Default);
     }
 
     public void SetDenizenControl()
@@ -238,5 +222,31 @@ public class EditClearingPanel : MonoBehaviour
             default:
                 return foxDenizenButton;
         }
+    }
+
+    private void OpenEditClearingPanel()
+    {
+        SetFactionControl(editingClearing.clearingControl);
+
+        marquisatePresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.Marquisate);
+        eyriePresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.EyrieDynasties);
+        woodlandAlliancePresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.WoodlandAlliance);
+        lizardPresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.LizardCult);
+        riverfolkPresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.RiverfolkCompany);
+        duchyPresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.GrandDuchy);
+        corvidPresenceToggle.isOn = editingClearing.GetHasFactionPresence(FactionType.CorvidConspiracy);
+
+        hasBuildingToggle.isOn = editingClearing.hasBuilding;
+
+        nameInputField.text = editingClearing.clearingName;
+        
+        SetDenizen(editingClearing.majorDenizen);
+        
+        gameObject.SetActive(true);
+    }
+
+    private void CloseEditClearingPanel()
+    {
+        gameObject.SetActive(false);
     }
 }

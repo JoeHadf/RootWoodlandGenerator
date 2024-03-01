@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject clearing;
     [SerializeField] private GameObject path;
 
-    [FormerlySerializedAs("buttonBehaviour")] [SerializeField] private SaveLoadPanel saveLoadPanel;
+    [SerializeField] private SaveLoadPanel saveLoadPanel;
     [SerializeField] private EditClearingPanel editClearingPanel;
     [SerializeField] private MouseBehaviour mouseBehaviour;
 
@@ -39,11 +39,32 @@ public class GameManager : MonoBehaviour
         fileGenerator = new FileGenerator(worldState);
         
         saveLoadPanel.Init(worldState);
-        mouseBehaviour.Init(worldState, saveLoadPanel, editClearingPanel, factionRerollMenu);
+        mouseBehaviour.Init(worldState, editClearingPanel);
         editModePanel.Init(worldState);
         fileScrollList.Init(fileGenerator);
         fileSaveMenu.Init(fileGenerator);
         rerollPanel.Init(worldState, mapGenerator, clearingInfoGenerator, riverGenerator);
         factionRerollMenu.Init(worldState, factionGenerator);
+        editClearingPanel.Init(worldState);
+
+        float yRange = Camera.main.orthographicSize;
+        float xRange = yRange * ((float)Screen.width / Screen.height);
+
+        GlobalConstants.SetScreenRange(xRange, yRange);
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (worldState.menuState == MenuState.Escape)
+            {
+                worldState.TryEnterMenuState(MenuState.Default);
+            }
+            else if (worldState.menuState == MenuState.Default)
+            {
+                worldState.TryEnterMenuState(MenuState.Escape);
+            }
+        }
     }
 }

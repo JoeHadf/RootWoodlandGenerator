@@ -31,7 +31,7 @@ public static class FileHelper
             string name = nameWithExtension.Substring(0, indexOfLastDot);
             string extension = nameWithExtension.Substring(indexOfLastDot + 1);
 
-            if (extension == "root")
+            if (extension == "wdld")
             {
                 savedWoodlands.Add(name);
             }

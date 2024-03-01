@@ -12,9 +12,6 @@ public class MapGenerator
 {
     private WorldState worldState;
     
-    private float xRange = 9.5f;
-    private float yRange = 4.0f;
-    
     private int clearingCount = 12;
 
     private int forceSteps = 500;
@@ -34,8 +31,8 @@ public class MapGenerator
         
         for (int i = 0; i < clearingPositions.Length; i++)
         {
-            float xPosition = Random.Range(-xRange, xRange);
-            float yPosition = Random.Range(-yRange, yRange);
+            float xPosition = Random.Range(-GlobalConstants.xRange, GlobalConstants.xRange);
+            float yPosition = Random.Range(-GlobalConstants.yRange, GlobalConstants.yRange);
             
             worldState.GenerateClearing(new Vector3(xPosition, yPosition, 0));
         }

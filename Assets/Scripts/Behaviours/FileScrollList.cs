@@ -43,7 +43,7 @@ public class FileScrollList : MonoBehaviour
     public void EndScrollList()
     {
         DeleteButtons();
-        saveLoadPanel.CloseScrollList();
+        saveLoadPanel.EnterEscapeMenuState();
     }
 
     public void SelectFile(string fileName)

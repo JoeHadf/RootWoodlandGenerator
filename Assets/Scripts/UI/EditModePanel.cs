@@ -23,32 +23,60 @@ public class EditModePanel : MonoBehaviour
 
     public void EnterWriteMode()
     {
-        worldState.ChangeEditMode(EditMode.Write);
-        selector.transform.localPosition = writeButton.transform.localPosition;
+        EnterEditMode(EditMode.Write);
     }
     
     public void EnterMoveMode()
     {
-        worldState.ChangeEditMode(EditMode.Move);
-        selector.transform.localPosition = moveButton.transform.localPosition;
+        EnterEditMode(EditMode.Move);
     }
     
     public void EnterCreateMode()
     {
-        worldState.ChangeEditMode(EditMode.Create);
-        selector.transform.localPosition = createButton.transform.localPosition;
+        EnterEditMode(EditMode.Create);
     }
 
     public void EnterRiverMode()
     {
-        worldState.river.ClearRiver();
-        worldState.ChangeEditMode(EditMode.River);
-        selector.transform.localPosition = riverButton.transform.localPosition;
+        EnterEditMode(EditMode.River);
     }
 
     public void EnterDeleteMode()
     {
-        worldState.ChangeEditMode(EditMode.Delete);
-        selector.transform.localPosition = deleteButton.transform.localPosition;
+        EnterEditMode(EditMode.Delete);
+    }
+
+    private void EnterEditMode(EditMode editMode)
+    {
+        if (worldState.menuState == MenuState.Default)
+        {
+            if (editMode == EditMode.River)
+            {
+                worldState.river.ClearRiver();
+            }
+            
+            worldState.ChangeEditMode(editMode);
+            selector.transform.localPosition = GetEditModeButton(editMode).transform.localPosition;
+        }
+    }
+
+    public Button GetEditModeButton(EditMode editMode)
+    {
+        switch (editMode)
+        {
+            case EditMode.Write:
+                return writeButton;
+            case EditMode.Move:
+                return moveButton;
+            case EditMode.Create:
+                return createButton;
+            case EditMode.River:
+                return riverButton;
+            case EditMode.Delete:
+                return deleteButton;
+            default:
+                return writeButton;
+            
+        }
     }
 }
